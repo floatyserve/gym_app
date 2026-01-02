@@ -1,10 +1,11 @@
 package com.example.demo.staff.api;
 
 import com.example.demo.security.UserPrincipal;
-import com.example.demo.staff.api.dto.CreateWorkerRequestDto;
+import com.example.demo.staff.api.dto.CreateWorkerOnboardingRequestDto;
 import com.example.demo.staff.api.dto.WorkerResponseDto;
 import com.example.demo.staff.domain.Worker;
 import com.example.demo.staff.mapper.WorkerMapper;
+import com.example.demo.staff.service.WorkerOnboardService;
 import com.example.demo.staff.service.WorkerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import java.util.List;
 public class WorkerController {
     private final WorkerService workerService;
     private final WorkerMapper workerMapper;
+    private final WorkerOnboardService workerOnboardingService;
 
     @PreAuthorize("hasAnyRole('ADMIN', 'RECEPTIONIST')")
     @GetMapping()
@@ -37,15 +39,11 @@ public class WorkerController {
     }
 
     @PostMapping
-    public WorkerResponseDto create(@RequestBody @Valid CreateWorkerRequestDto req){
-        Worker worker = workerService.create(
-                req.firstName(),
-                req.lastName(),
-                req.phoneNumber(),
-                req.birthDate(),
-                req.userId()
-        );
-
+    @PreAuthorize("hasRole('ADMIN')")
+    public WorkerResponseDto createWorker(
+            @Valid @RequestBody CreateWorkerOnboardingRequestDto req
+    ) {
+        Worker worker = workerOnboardingService.onboard(req);
         return workerMapper.toDto(worker);
     }
 
