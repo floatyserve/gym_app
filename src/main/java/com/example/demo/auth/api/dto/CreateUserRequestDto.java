@@ -6,14 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import com.example.demo.auth.domain.Role;
 
 public record CreateUserRequestDto(
-
-        @NotBlank
-        @Email
-        String email,
-
-        @NotBlank
-        String password,
-
-        @NotNull
-        Role role
+        @NotBlank @Email String email,
+        @NotBlank String password,
+        @NotNull Role role
 ) {}
