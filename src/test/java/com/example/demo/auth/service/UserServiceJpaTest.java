@@ -4,7 +4,7 @@ import com.example.demo.auth.domain.Role;
 import com.example.demo.auth.domain.User;
 import com.example.demo.auth.repository.UserRepository;
 import com.example.demo.auth.service.impl.UserServiceJpa;
-import com.example.demo.exceptions.UserNotFoundException;
+import com.example.demo.exceptions.ReferenceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -85,7 +85,7 @@ class UserServiceJpaTest {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.findById(1L))
-                .isInstanceOf(UserNotFoundException.class)
+                .isInstanceOf(ReferenceNotFoundException.class)
                 .hasMessageContaining("User with id");
     }
 
@@ -108,7 +108,7 @@ class UserServiceJpaTest {
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.findByEmail("a@test.com"))
-                .isInstanceOf(UserNotFoundException.class)
+                .isInstanceOf(ReferenceNotFoundException.class)
                 .hasMessageContaining("email");
     }
 

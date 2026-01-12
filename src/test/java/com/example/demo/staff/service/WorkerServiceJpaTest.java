@@ -1,9 +1,8 @@
 package com.example.demo.staff.service;
 
-import com.example.demo.auth.domain.Role;
 import com.example.demo.auth.domain.User;
 import com.example.demo.auth.service.UserService;
-import com.example.demo.exceptions.WorkerNotFoundException;
+import com.example.demo.exceptions.ReferenceNotFoundException;
 import com.example.demo.staff.domain.Worker;
 import com.example.demo.staff.repository.WorkerRepository;
 import com.example.demo.staff.service.impl.WorkerServiceJpa;
@@ -56,7 +55,7 @@ class WorkerServiceJpaTest {
         when(workerRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> workerService.findById(1L))
-                .isInstanceOf(WorkerNotFoundException.class)
+                .isInstanceOf(ReferenceNotFoundException.class)
                 .hasMessageContaining("Worker not found");
     }
 
@@ -77,7 +76,7 @@ class WorkerServiceJpaTest {
         when(workerRepository.findByUserId(10L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> workerService.findByUserId(10L))
-                .isInstanceOf(WorkerNotFoundException.class)
+                .isInstanceOf(ReferenceNotFoundException.class)
                 .hasMessageContaining("Worker not found");
     }
 

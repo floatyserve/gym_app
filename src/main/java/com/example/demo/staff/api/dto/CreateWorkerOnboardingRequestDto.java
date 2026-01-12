@@ -16,7 +16,6 @@ public record CreateWorkerOnboardingRequestDto(
         @NotNull
         Role role,
 
-
         @NotBlank
         String firstName,
 

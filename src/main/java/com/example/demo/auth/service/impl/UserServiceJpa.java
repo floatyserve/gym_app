@@ -4,7 +4,7 @@ import com.example.demo.auth.domain.Role;
 import com.example.demo.auth.domain.User;
 import com.example.demo.auth.repository.UserRepository;
 import com.example.demo.auth.service.UserService;
-import com.example.demo.exceptions.UserNotFoundException;
+import com.example.demo.exceptions.ReferenceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,14 +22,14 @@ public class UserServiceJpa implements UserService {
     public User findByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() ->
-                        new UserNotFoundException("User with email: " + email + " was not found"));
+                        new ReferenceNotFoundException("User with email: " + email + " was not found"));
     }
 
     @Override
     public User findById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() ->
-                        new UserNotFoundException("User with id: " + id + " was not found"));
+                        new ReferenceNotFoundException("User with id: " + id + " was not found"));
     }
 
     @Override
