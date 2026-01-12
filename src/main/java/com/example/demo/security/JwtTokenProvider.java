@@ -25,12 +25,13 @@ public class JwtTokenProvider {
         this.signingKey = Keys.hmacShaKeyFor(secret.getBytes());
     }
 
-    public String generateToken(Long userId) {
+    public String generateToken(UserPrincipal principal) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + expirationMillis);
 
         return Jwts.builder()
-                .setSubject(String.valueOf(userId))
+                .setSubject(String.valueOf(principal.getId()))
+                .claim("pwd_changed", principal.isPasswordChanged())
                 .setIssuedAt(now)
                 .setExpiration(expiry)
                 .signWith(signingKey, SignatureAlgorithm.HS256)

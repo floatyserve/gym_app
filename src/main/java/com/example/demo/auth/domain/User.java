@@ -3,6 +3,7 @@ package com.example.demo.auth.domain;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.Instant;
 
@@ -20,6 +21,7 @@ public class User {
     private String email;
 
     @Column(nullable = false)
+    @Setter
     private String passwordHash;
 
     @Enumerated(EnumType.STRING)
@@ -32,12 +34,17 @@ public class User {
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
+    @Column(nullable = false)
+    @Setter
+    private boolean passwordChanged;
+
     public User(String email, String passwordHash, Role role) {
         this.email = email;
         this.passwordHash = passwordHash;
         this.role = role;
         this.active = true;
         this.createdAt = Instant.now();
+        this.passwordChanged = false;
     }
 
     public void deactivate() {

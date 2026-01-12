@@ -1,16 +1,12 @@
 package com.example.demo.auth.api.dto;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import com.example.demo.auth.domain.Role;
 import jakarta.validation.constraints.Pattern;
 
-public record CreateUserRequestDto(
-        @NotBlank
-        @Email
-        String email,
+public record ChangePasswordRequestDto(
 
+        @NotBlank
+        String oldPassword,
 
         @NotBlank
         @Pattern(
@@ -18,8 +14,5 @@ public record CreateUserRequestDto(
                 message = "Password must be at least 8 characters long " +
                         "and include upper case, lower case, and a digit"
         )
-        String password,
-
-        @NotNull
-        Role role
+        String newPassword
 ) {}

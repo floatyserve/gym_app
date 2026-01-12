@@ -21,6 +21,7 @@ public class UserPrincipal implements UserDetails {
     private final String passwordHash;
     private final Role role;
     private final boolean active;
+    private final boolean passwordChanged;
 
     public static UserPrincipal from(User user) {
         return new UserPrincipal(
@@ -28,7 +29,8 @@ public class UserPrincipal implements UserDetails {
                 user.getEmail(),
                 user.getPasswordHash(),
                 user.getRole(),
-                user.isActive()
+                user.isActive(),
+                user.isPasswordChanged()
         );
     }
 
