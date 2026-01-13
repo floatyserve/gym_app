@@ -4,8 +4,8 @@ import com.example.demo.auth.domain.User;
 import com.example.demo.auth.service.AuthService;
 import com.example.demo.auth.service.UserService;
 import com.example.demo.security.JwtTokenProvider;
+import com.example.demo.exceptions.BadRequestException;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -49,7 +49,7 @@ public class AuthServiceJpa implements AuthService {
             Long userId,
             String oldPassword,
             String newPassword
-    ) throws BadRequestException {
+    ) {
         User user = userService.findById(userId);
 
         if (!passwordEncoder.matches(oldPassword, user.getPasswordHash())) {

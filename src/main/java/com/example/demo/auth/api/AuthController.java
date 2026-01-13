@@ -7,7 +7,6 @@ import com.example.demo.auth.service.AuthService;
 import com.example.demo.security.UserPrincipal;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,7 +27,7 @@ public class AuthController {
     public LoginResponseDto changePassword(
             @AuthenticationPrincipal UserPrincipal principal,
             @Valid @RequestBody ChangePasswordRequestDto req
-    ) throws BadRequestException {
+    ) {
         String token = authService.changePassword(
                 principal.getId(),
                 req.oldPassword(),
