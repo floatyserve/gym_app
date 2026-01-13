@@ -4,6 +4,7 @@ import com.example.demo.auth.domain.Role;
 import com.example.demo.auth.domain.User;
 import com.example.demo.auth.repository.UserRepository;
 import com.example.demo.auth.service.impl.UserServiceJpa;
+import com.example.demo.exceptions.BadRequestException;
 import com.example.demo.exceptions.ReferenceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -115,13 +116,30 @@ class UserServiceJpaTest {
     // ---------- activate / deactivate ----------
 
     @Test
-    void deactivate_marksUserAsInactive() {
-        User user = new User("a@test.com", "pw", Role.RECEPTIONIST);
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+    void deactivate_marksTargetUserAsInactive_whenDifferentUser() {
+        Long adminId = 1L;
+        Long targetUserId = 2L;
 
-        userService.deactivate(1L);
+        User user = new User("a@test.com", "pw", Role.RECEPTIONIST);
+        when(userRepository.findById(targetUserId))
+                .thenReturn(Optional.of(user));
+
+        userService.deactivate(adminId, targetUserId);
 
         assertThat(user.isActive()).isFalse();
+    }
+
+    @Test
+    void deactivate_throwsBadRequestException_whenUserTriesToDeactivateSelf() {
+        Long userId = 1L;
+
+        assertThatThrownBy(() ->
+                userService.deactivate(userId, userId)
+        )
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("You cannot deactivate yourself");
+
+        verify(userRepository, never()).findById(any());
     }
 
     @Test
