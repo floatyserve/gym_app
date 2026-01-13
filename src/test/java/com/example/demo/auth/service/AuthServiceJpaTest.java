@@ -2,9 +2,9 @@ package com.example.demo.auth.service;
 
 import com.example.demo.auth.domain.User;
 import com.example.demo.auth.service.impl.AuthServiceJpa;
+import com.example.demo.exceptions.BadRequestException;
 import com.example.demo.security.JwtTokenProvider;
 import com.example.demo.security.UserPrincipal;
-import org.apache.coyote.BadRequestException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -90,7 +90,7 @@ class AuthServiceJpaTest {
     // ---------------- CHANGE PASSWORD ----------------
 
     @Test
-    void changePassword_updatesPassword_andReturnsNewToken() throws BadRequestException {
+    void changePassword_updatesPassword_andReturnsNewToken() {
         Long userId = 1L;
         String oldPassword = "OldPass123";
         String newPassword = "NewPass123";
@@ -153,7 +153,7 @@ class AuthServiceJpaTest {
 
         assertThatThrownBy(() ->
                 authService.changePassword(userId, password, password)
-        ).isInstanceOf(BadCredentialsException.class)
+        ).isInstanceOf(BadRequestException.class)
                 .hasMessage("New password must be different from the old one");
 
         verify(user, never()).setPasswordHash(any());
