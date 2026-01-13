@@ -5,9 +5,11 @@ import com.example.demo.auth.api.dto.UserResponseDto;
 import com.example.demo.auth.domain.User;
 import com.example.demo.auth.mapper.UserMapper;
 import com.example.demo.auth.service.UserService;
+import com.example.demo.security.UserPrincipal;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -33,8 +35,10 @@ public class UserController {
 
     @PostMapping("/{id}/deactivate")
     @PreAuthorize("hasRole('ADMIN')")
-    public void deactivate(@PathVariable Long id) {
-        userService.deactivate(id);
+    public void deactivate(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable Long id) {
+        userService.deactivate(userPrincipal.getId(), id);
     }
 
     @PostMapping("/{id}/activate")

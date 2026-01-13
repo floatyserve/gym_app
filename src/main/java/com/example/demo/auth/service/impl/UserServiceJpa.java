@@ -5,6 +5,7 @@ import com.example.demo.auth.domain.User;
 import com.example.demo.auth.repository.UserRepository;
 import com.example.demo.auth.service.UserService;
 import com.example.demo.exceptions.ReferenceNotFoundException;
+import com.example.demo.exceptions.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -48,8 +49,12 @@ public class UserServiceJpa implements UserService {
     }
 
     @Override
-    public void deactivate(Long userId) {
-        User user = findById(userId);
+    public void deactivate(Long currentUserId, Long targetUserId) {
+        if (currentUserId.equals(targetUserId)) {
+            throw new BadRequestException("You cannot deactivate yourself");
+        }
+
+        User user = findById(targetUserId);
         user.deactivate();
     }
 

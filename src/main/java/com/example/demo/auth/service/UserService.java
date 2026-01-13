@@ -11,7 +11,7 @@ public interface UserService {
 
     User create(String email, String rawPassword, Role role);
 
-    void deactivate(Long userId);
+    void deactivate(Long currentUserId, Long targetUserId);
 
     void activate(Long userId);
 }
