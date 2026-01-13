@@ -33,6 +33,11 @@ public class UserController {
         return userMapper.toDto(userService.findById(id));
     }
 
+    @GetMapping("/me")
+    public UserResponseDto getSelf(@AuthenticationPrincipal UserPrincipal principal) {
+        return userMapper.toDto(userService.findById(principal.getId()));
+    }
+
     @PostMapping("/{id}/deactivate")
     @PreAuthorize("hasRole('ADMIN')")
     public void deactivate(
