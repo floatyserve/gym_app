@@ -1,14 +1,15 @@
 package com.example.demo.staff.service;
 
 import com.example.demo.staff.domain.Worker;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
-import java.util.List;
 
 public interface WorkerService {
     Worker findById(Long id);
     Worker findByUserId(Long userId);
-    List<Worker> findAll();
+    Page<Worker> findAll(Pageable pageable);
     Worker create(
             String firstName,
             String lastName,

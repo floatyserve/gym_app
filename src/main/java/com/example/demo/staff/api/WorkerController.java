@@ -9,11 +9,11 @@ import com.example.demo.staff.service.WorkerOnboardService;
 import com.example.demo.staff.service.WorkerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/workers")
@@ -25,11 +25,9 @@ public class WorkerController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'RECEPTIONIST')")
     @GetMapping()
-    public List<WorkerResponseDto> getAll(){
-        return workerService.findAll()
-                .stream()
-                .map(workerMapper::toDto)
-                .toList();
+    public Page<WorkerResponseDto> getAll(Pageable pageable){
+        return workerService.findAll(pageable)
+                .map(workerMapper::toDto);
     }
 
     @GetMapping("/{id}")

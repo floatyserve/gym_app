@@ -7,13 +7,14 @@ import com.example.demo.staff.domain.Worker;
 import com.example.demo.staff.repository.WorkerRepository;
 import com.example.demo.staff.service.WorkerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -39,8 +40,8 @@ public class WorkerServiceJpa implements WorkerService {
     }
 
     @Override
-    public List<Worker> findAll() {
-        return workerRepository.findAll();
+    public Page<Worker> findAll(Pageable pageable) {
+        return workerRepository.findAll(pageable);
     }
 
     @Override
