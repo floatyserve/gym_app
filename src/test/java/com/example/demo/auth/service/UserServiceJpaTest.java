@@ -143,13 +143,29 @@ class UserServiceJpaTest {
     }
 
     @Test
-    void activate_marksUserAsActive() {
+    void activate_marksTargetUserAsActive_whenDifferentUser() {
+        Long adminId = 1L;
+        Long targetUserId = 2L;
+
         User user = new User("a@test.com", "pw", Role.RECEPTIONIST);
-        user.deactivate();
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.findById(targetUserId))
+                .thenReturn(Optional.of(user));
 
-        userService.activate(1L);
+        userService.activate(adminId, targetUserId);
 
-        assertThat(user.isActive()).isTrue();
+        assertThat(user.isActive());
+    }
+
+    @Test
+    void activate_throwsBadRequestException_whenUserTriesToActivateSelf() {
+        Long userId = 1L;
+
+        assertThatThrownBy(() ->
+                userService.activate(userId, userId)
+        )
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("You cannot activate yourself");
+
+        verify(userRepository, never()).findById(any());
     }
 }

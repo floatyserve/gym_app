@@ -11,6 +11,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -83,13 +86,17 @@ class WorkerServiceJpaTest {
     // ---------- findAll ----------
 
     @Test
-    void findAll_returnsAllWorkers() {
+    void findAll_returnsPagedWorkers() {
+        PageRequest pageable = PageRequest.of(0, 5);
         List<Worker> workers = List.of(mock(Worker.class), mock(Worker.class));
-        when(workerRepository.findAll()).thenReturn(workers);
+        Page<Worker> page = new PageImpl<>(workers, pageable, workers.size());
 
-        List<Worker> result = workerService.findAll();
+        when(workerRepository.findAll(pageable)).thenReturn(page);
 
-        assertThat(result).isEqualTo(workers);
+        Page<Worker> result = workerService.findAll(pageable);
+
+        assertThat(result.getContent()).hasSize(2);
+        assertThat(result.getTotalElements()).isEqualTo(2);
     }
 
     // ---------- create ----------
