@@ -2,6 +2,7 @@ package com.example.demo.customer.api.controller;
 
 import com.example.demo.auth.domain.User;
 import com.example.demo.auth.service.UserService;
+import com.example.demo.common.api.dto.PageResponseDto;
 import com.example.demo.customer.api.dto.CreateCustomerRequest;
 import com.example.demo.customer.api.dto.CustomerResponseDto;
 import com.example.demo.customer.api.dto.UpdateCustomerRequest;
@@ -11,7 +12,6 @@ import com.example.demo.customer.service.CustomerService;
 import com.example.demo.security.UserPrincipal;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -27,9 +27,11 @@ public class CustomerController {
     private final CustomerMapper customerMapper;
 
     @GetMapping
-    public Page<CustomerResponseDto> getAll(Pageable pageable){
-        return customerService.findAll(pageable)
-                .map(customerMapper::toDto);
+    public PageResponseDto<CustomerResponseDto> getAll(Pageable pageable){
+        return PageResponseDto.from(
+                customerService.findAll(pageable)
+                    .map(customerMapper::toDto)
+        );
     }
 
     @GetMapping("/{id}")

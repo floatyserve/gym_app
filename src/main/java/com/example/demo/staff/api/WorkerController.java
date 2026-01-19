@@ -1,5 +1,6 @@
 package com.example.demo.staff.api;
 
+import com.example.demo.common.api.dto.PageResponseDto;
 import com.example.demo.security.UserPrincipal;
 import com.example.demo.staff.api.dto.CreateWorkerOnboardingRequestDto;
 import com.example.demo.staff.api.dto.WorkerResponseDto;
@@ -9,7 +10,6 @@ import com.example.demo.staff.service.WorkerOnboardService;
 import com.example.demo.staff.service.WorkerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,9 +25,11 @@ public class WorkerController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'RECEPTIONIST')")
     @GetMapping()
-    public Page<WorkerResponseDto> getAll(Pageable pageable){
-        return workerService.findAll(pageable)
-                .map(workerMapper::toDto);
+    public PageResponseDto<WorkerResponseDto> getAll(Pageable pageable){
+        return PageResponseDto.from(
+                workerService.findAll(pageable)
+                    .map(workerMapper::toDto)
+        );
     }
 
     @GetMapping("/{id}")
