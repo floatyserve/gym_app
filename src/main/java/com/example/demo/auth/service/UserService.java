@@ -13,5 +13,5 @@ public interface UserService {
 
     void deactivate(Long currentUserId, Long targetUserId);
 
-    void activate(Long userId);
+    void activate(Long currentUserId, Long targetUserId);
 }

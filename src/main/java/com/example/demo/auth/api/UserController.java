@@ -48,7 +48,9 @@ public class UserController {
 
     @PostMapping("/{id}/activate")
     @PreAuthorize("hasRole('ADMIN')")
-    public void activate(@PathVariable Long id) {
-        userService.activate(id);
+    public void activate(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable Long id) {
+        userService.activate(userPrincipal.getId(), id);
     }
 }

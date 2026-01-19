@@ -59,8 +59,12 @@ public class UserServiceJpa implements UserService {
     }
 
     @Override
-    public void activate(Long userId) {
-        User user = findById(userId);
+    public void activate(Long currentUserId, Long targetUserId) {
+        if (currentUserId.equals(targetUserId)) {
+            throw new BadRequestException("You cannot activate yourself");
+        }
+
+        User user = findById(targetUserId);
         user.activate();
     }
 }
