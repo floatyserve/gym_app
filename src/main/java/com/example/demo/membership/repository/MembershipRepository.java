@@ -27,4 +27,6 @@ public interface MembershipRepository extends JpaRepository<Membership, Long> {
     Optional<Membership> findTopByCustomerOrderByEndsAtDesc(Customer customer);
 
     boolean existsByCustomerAndIdNotAndActiveTrueAndStartsAtLessThanAndEndsAtGreaterThan(Customer customer, Long id, Instant newEndsAt, Instant newStartsAt);
+
+    Optional<Membership>findTopByCustomerAndStartsAtAfterOrderByStartsAtAsc(Customer customer, Instant at);
 }
