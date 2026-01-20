@@ -23,12 +23,17 @@ public class Visit {
 
     private Instant checkedOutAt;
 
+    @Column(nullable = false)
+    private boolean active;
+
     public void checkout() {
         this.checkedOutAt = Instant.now();
+        this.active = false;
     }
 
     public Visit(Customer customer) {
         this.customer = customer;
         this.checkedInAt = Instant.now();
+        this.active = true;
     }
 }
