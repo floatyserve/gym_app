@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.Instant;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
@@ -28,6 +29,8 @@ class UserServiceJpaTest {
     private PasswordEncoder passwordEncoder;
 
     private UserServiceJpa userService;
+
+    private final Instant NOW = Instant.parse("2025-01-01T10:00:00Z");
 
     @BeforeEach
     void setUp() {
@@ -48,7 +51,7 @@ class UserServiceJpaTest {
         when(userRepository.save(any(User.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        User user = userService.create(email, rawPassword, role);
+        User user = userService.create(email, rawPassword, role, NOW);
 
         assertThat(user.getEmail()).isEqualTo(email);
         assertThat(user.getPasswordHash()).isEqualTo(encodedPassword);
@@ -61,7 +64,7 @@ class UserServiceJpaTest {
         when(userRepository.existsByEmail("test@test.com")).thenReturn(true);
 
         assertThatThrownBy(() ->
-                userService.create("test@test.com", "password", Role.RECEPTIONIST)
+                userService.create("test@test.com", "password", Role.RECEPTIONIST, NOW)
         ).isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Email already in use");
 
@@ -73,7 +76,7 @@ class UserServiceJpaTest {
 
     @Test
     void findById_returnsUser_whenUserExists() {
-        User user = new User("a@test.com", "pw", Role.RECEPTIONIST);
+        User user = new User("a@test.com", "pw", Role.RECEPTIONIST, NOW);
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         User result = userService.findById(1L);
@@ -94,7 +97,7 @@ class UserServiceJpaTest {
 
     @Test
     void findByEmail_returnsUser_whenUserExists() {
-        User user = new User("a@test.com", "pw", Role.RECEPTIONIST);
+        User user = new User("a@test.com", "pw", Role.RECEPTIONIST, NOW);
         when(userRepository.findByEmail("a@test.com"))
                 .thenReturn(Optional.of(user));
 
@@ -120,7 +123,7 @@ class UserServiceJpaTest {
         Long adminId = 1L;
         Long targetUserId = 2L;
 
-        User user = new User("a@test.com", "pw", Role.RECEPTIONIST);
+        User user = new User("a@test.com", "pw", Role.RECEPTIONIST, NOW);
         when(userRepository.findById(targetUserId))
                 .thenReturn(Optional.of(user));
 
@@ -147,7 +150,7 @@ class UserServiceJpaTest {
         Long adminId = 1L;
         Long targetUserId = 2L;
 
-        User user = new User("a@test.com", "pw", Role.RECEPTIONIST);
+        User user = new User("a@test.com", "pw", Role.RECEPTIONIST, NOW);
         when(userRepository.findById(targetUserId))
                 .thenReturn(Optional.of(user));
 

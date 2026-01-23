@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,9 +34,11 @@ class CustomerServiceJpaTest {
     private User user;
     private Customer customer;
 
+    private final Instant NOW = Instant.parse("2025-01-01T10:00:00Z");
+
     @BeforeEach
     void setUp() {
-        user = new User("admin@test.com", "hash", null);
+        user = new User("admin@test.com", "hash", null, NOW);
         customer = new Customer(
                 "John Doe",
                 "123456789",
@@ -130,7 +133,7 @@ class CustomerServiceJpaTest {
 
     @Test
     void update_updatesProvidedFieldsAndReturnsCustomer() {
-        User updatedBy = new User("staff@test.com", "hash", null);
+        User updatedBy = new User("staff@test.com", "hash", null, NOW);
 
         when(customerRepository.findById(1L))
                 .thenReturn(Optional.of(customer));
