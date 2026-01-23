@@ -48,4 +48,17 @@ public class GlobalExceptionHandler {
                 .body(ex.getMessage());
     }
 
+    @ExceptionHandler(NoActiveMembershipException.class)
+    public ResponseEntity<NoActiveMembershipException> handleNoActiveMembershipException(NoActiveMembershipException ex) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ex);
+    }
+
+    @ExceptionHandler(NoVisitsLeftException.class)
+    public ResponseEntity<NoVisitsLeftException> handleNoVisitsLeftException(NoVisitsLeftException ex) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ex);
+    }
 }
