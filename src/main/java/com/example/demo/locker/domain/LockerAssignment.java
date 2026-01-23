@@ -27,13 +27,13 @@ public class LockerAssignment {
 
     private Instant releasedAt;
 
-    public LockerAssignment(Visit visit, Locker locker) {
+    public LockerAssignment(Visit visit, Locker locker, Instant assignedAt) {
         this.visit = visit;
         this.locker = locker;
-        this.assignedAt = Instant.now();
+        this.assignedAt = assignedAt;
     }
 
-    public void release() {
-        this.releasedAt = Instant.now();
+    public void release(Instant releasedAt) {
+        this.releasedAt = releasedAt;
     }
 }

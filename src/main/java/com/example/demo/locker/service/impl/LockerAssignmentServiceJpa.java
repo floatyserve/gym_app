@@ -7,47 +7,37 @@ import com.example.demo.locker.repository.LockerAssignmentRepository;
 import com.example.demo.locker.service.LockerAssignmentService;
 import com.example.demo.locker.service.LockerService;
 import com.example.demo.visit.domain.Visit;
-import com.example.demo.visit.service.VisitService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class LockerAssignmentServiceJpa implements LockerAssignmentService {
+
     private final LockerService lockerService;
     private final LockerAssignmentRepository lockerAssignmentRepository;
-    private final VisitService visitService;
 
     @Override
-    public LockerAssignment assignLockerToVisitManually(Long visitId, Long lockerId) {
-        Visit visit = visitService.findActiveVisit(visitId);
+    public LockerAssignment assignLockerToVisitManually(Visit visit, Locker locker, Instant assignedAt) {
 
-        if (lockerAssignmentRepository.existsByVisitIdAndReleasedAtIsNull(visitId)) {
-            throw new BadRequestException("Visit already has a locker");
-        }
-
-        Locker locker = lockerService.findById(lockerId);
+        assertVisitHasNoActiveLocker(visit);
         lockerService.assertAvailable(locker);
 
-        LockerAssignment assignment =
-                new LockerAssignment(visit, locker);
+        LockerAssignment assignment = new LockerAssignment(visit, locker, assignedAt);
 
         return lockerAssignmentRepository.save(assignment);
     }
 
-
     @Override
-    public LockerAssignment assignAvailableLockerToVisit(Long visitId) {
-        Visit visit = visitService.findActiveVisit(visitId);
+    public LockerAssignment assignAvailableLockerToVisit(Visit visit, Instant assignedAt) {
 
-        if (lockerAssignmentRepository.existsByVisitIdAndReleasedAtIsNull(visitId)) {
-            throw new BadRequestException("Visit already has a locker");
-        }
+        assertVisitHasNoActiveLocker(visit);
 
         List<Locker> available = lockerService.findAllAvailable();
         if (available.isEmpty()) {
@@ -57,35 +47,38 @@ public class LockerAssignmentServiceJpa implements LockerAssignmentService {
         Locker locker = available.getFirst();
 
         try {
-            return lockerAssignmentRepository.save(
-                    new LockerAssignment(visit, locker)
-            );
+            return lockerAssignmentRepository.save(new LockerAssignment(visit, locker, assignedAt));
         } catch (DataIntegrityViolationException e) {
             throw new BadRequestException("Locker was taken concurrently, retry");
         }
     }
 
     @Override
-    public LockerAssignment reassignLocker(Long visitId, Long newLockerId) {
+    public LockerAssignment reassignLocker(Visit visit, Locker newLocker, Instant assignedAt) {
 
-        Visit visit = visitService.findActiveVisit(visitId);
+        LockerAssignment current = findActiveAssignmentForVisit(visit);
 
-        LockerAssignment currentAssignment =
-                lockerAssignmentRepository
-                        .findByVisitIdAndReleasedAtIsNull(visitId)
-                        .orElseThrow(() ->
-                                new BadRequestException("Visit has no active locker to reassign")
-                        );
-
-        Locker newLocker = lockerService.findById(newLockerId);
         lockerService.assertAvailable(newLocker);
 
-        currentAssignment.release();
+        current.release(assignedAt);
 
-        LockerAssignment newAssignment =
-                new LockerAssignment(visit, newLocker);
+        LockerAssignment newAssignment = new LockerAssignment(visit, newLocker, assignedAt);
 
         return lockerAssignmentRepository.save(newAssignment);
     }
 
+    @Override
+    public LockerAssignment findActiveAssignmentForVisit(Visit visit) {
+        return lockerAssignmentRepository
+                .findByVisitIdAndReleasedAtIsNull(visit.getId())
+                .orElseThrow(() ->
+                        new BadRequestException("Visit has no active locker")
+                );
+    }
+
+    private void assertVisitHasNoActiveLocker(Visit visit) {
+        if (lockerAssignmentRepository.existsByVisitIdAndReleasedAtIsNull(visit.getId())) {
+            throw new BadRequestException("Visit already has a locker");
+        }
+    }
 }

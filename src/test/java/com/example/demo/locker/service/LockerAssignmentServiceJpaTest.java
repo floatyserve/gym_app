@@ -6,13 +6,13 @@ import com.example.demo.locker.domain.LockerAssignment;
 import com.example.demo.locker.repository.LockerAssignmentRepository;
 import com.example.demo.locker.service.impl.LockerAssignmentServiceJpa;
 import com.example.demo.visit.domain.Visit;
-import com.example.demo.visit.service.VisitService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,40 +28,45 @@ class LockerAssignmentServiceJpaTest {
     @Mock
     private LockerAssignmentRepository lockerAssignmentRepository;
 
-    @Mock
-    private VisitService visitService;
-
     @InjectMocks
-    private LockerAssignmentServiceJpa lockerAssignmentService;
+    private LockerAssignmentServiceJpa service;
+    private final Instant NOW = Instant.parse("2025-01-01T10:00:00Z");
 
     @Test
     void assignLockerToVisitManually_createsAssignment() {
         Visit visit = mock(Visit.class);
         Locker locker = mock(Locker.class);
 
-        when(visitService.findActiveVisit(1L)).thenReturn(visit);
-        when(lockerAssignmentRepository.existsByVisitIdAndReleasedAtIsNull(1L)).thenReturn(false);
-        when(lockerService.findById(2L)).thenReturn(locker);
+        when(visit.getId()).thenReturn(1L);
+        when(lockerAssignmentRepository
+                .existsByVisitIdAndReleasedAtIsNull(1L))
+                .thenReturn(false);
+
         doNothing().when(lockerService).assertAvailable(locker);
-        when(lockerAssignmentRepository.save(any(LockerAssignment.class)))
+
+        when(lockerAssignmentRepository.save(any()))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         LockerAssignment result =
-                lockerAssignmentService.assignLockerToVisitManually(1L, 2L);
+                service.assignLockerToVisitManually(visit, locker, NOW);
 
         assertThat(result.getVisit()).isSameAs(visit);
         assertThat(result.getLocker()).isSameAs(locker);
     }
 
     @Test
-    void assignAvailableLockerToVisit_throwsException_whenNoneAvailable() {
+    void assignAvailableLockerToVisit_throws_whenNoneAvailable() {
         Visit visit = mock(Visit.class);
 
-        when(visitService.findActiveVisit(1L)).thenReturn(visit);
-        when(lockerAssignmentRepository.existsByVisitIdAndReleasedAtIsNull(1L)).thenReturn(false);
+        when(visit.getId()).thenReturn(1L);
+        when(lockerAssignmentRepository
+                .existsByVisitIdAndReleasedAtIsNull(1L))
+                .thenReturn(false);
+
         when(lockerService.findAllAvailable()).thenReturn(List.of());
 
-        assertThatThrownBy(() -> lockerAssignmentService.assignAvailableLockerToVisit(1L))
+        assertThatThrownBy(() ->
+                service.assignAvailableLockerToVisit(visit, NOW))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessageContaining("No available lockers");
     }
@@ -69,24 +74,41 @@ class LockerAssignmentServiceJpaTest {
     @Test
     void reassignLocker_releasesOldAndAssignsNew() {
         Visit visit = mock(Visit.class);
-        Locker oldLocker = mock(Locker.class);
         Locker newLocker = mock(Locker.class);
-
         LockerAssignment currentAssignment = mock(LockerAssignment.class);
 
-        when(visitService.findActiveVisit(1L)).thenReturn(visit);
-        when(lockerAssignmentRepository.findByVisitIdAndReleasedAtIsNull(1L))
+        when(visit.getId()).thenReturn(1L);
+
+        when(lockerAssignmentRepository
+                .findByVisitIdAndReleasedAtIsNull(1L))
                 .thenReturn(Optional.of(currentAssignment));
-        when(lockerService.findById(2L)).thenReturn(newLocker);
+
         doNothing().when(lockerService).assertAvailable(newLocker);
-        when(lockerAssignmentRepository.save(any(LockerAssignment.class)))
+
+        when(lockerAssignmentRepository.save(any()))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         LockerAssignment result =
-                lockerAssignmentService.reassignLocker(1L, 2L);
+                service.reassignLocker(visit, newLocker, NOW);
 
-        verify(currentAssignment).release();
+        verify(currentAssignment).release(NOW);
         assertThat(result.getVisit()).isSameAs(visit);
         assertThat(result.getLocker()).isSameAs(newLocker);
+    }
+
+    @Test
+    void assignLockerToVisitManually_throws_whenVisitAlreadyHasLocker() {
+        Visit visit = mock(Visit.class);
+        Locker locker = mock(Locker.class);
+
+        when(visit.getId()).thenReturn(1L);
+        when(lockerAssignmentRepository
+                .existsByVisitIdAndReleasedAtIsNull(1L))
+                .thenReturn(true);
+
+        assertThatThrownBy(() ->
+                service.assignLockerToVisitManually(visit, locker, NOW))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessageContaining("already has a locker");
     }
 }
