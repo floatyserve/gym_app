@@ -52,4 +52,8 @@ public class Worker {
         this.hiredAt = hiredAt;
         this.user = user;
     }
+
+    public String getFullName() {
+        return firstName + " " + lastName;
+    }
 }

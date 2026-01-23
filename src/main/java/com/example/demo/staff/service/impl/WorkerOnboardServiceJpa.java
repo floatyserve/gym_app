@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -19,11 +21,12 @@ public class WorkerOnboardServiceJpa implements WorkerOnboardService {
     private final WorkerService workerService;
 
     @Override
-    public Worker onboard(CreateWorkerOnboardingRequestDto req) {
+    public Worker onboard(CreateWorkerOnboardingRequestDto req, Instant at) {
         User user = userService.create(
                 req.email(),
                 req.password(),
-                req.role()
+                req.role(),
+                at
         );
 
         return workerService.create(

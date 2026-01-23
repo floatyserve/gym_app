@@ -15,6 +15,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Clock;
+
 @RestController
 @RequestMapping("/api/workers")
 @RequiredArgsConstructor
@@ -22,6 +24,7 @@ public class WorkerController {
     private final WorkerService workerService;
     private final WorkerMapper workerMapper;
     private final WorkerOnboardService workerOnboardingService;
+    private final Clock clock;
 
     @PreAuthorize("hasAnyRole('ADMIN', 'RECEPTIONIST')")
     @GetMapping()
@@ -42,7 +45,7 @@ public class WorkerController {
     public WorkerResponseDto createWorker(
             @Valid @RequestBody CreateWorkerOnboardingRequestDto req
     ) {
-        Worker worker = workerOnboardingService.onboard(req);
+        Worker worker = workerOnboardingService.onboard(req, clock.instant());
         return workerMapper.toDto(worker);
     }
 

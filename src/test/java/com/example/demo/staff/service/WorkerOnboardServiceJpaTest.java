@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Instant;
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.*;
@@ -34,6 +35,8 @@ class WorkerOnboardServiceJpaTest {
 
     private WorkerOnboardServiceJpa service;
 
+    private final Instant NOW = Instant.parse("2025-01-01T10:00:00Z");
+
     @BeforeEach
     void setUp() {
         service = new WorkerOnboardServiceJpa(userService, workerService);
@@ -48,7 +51,8 @@ class WorkerOnboardServiceJpaTest {
         when(userService.create(
                 request.email(),
                 request.password(),
-                request.role()
+                request.role(),
+                NOW
         )).thenReturn(user);
 
         when(workerService.create(
@@ -59,17 +63,17 @@ class WorkerOnboardServiceJpaTest {
                 1L
         )).thenReturn(worker);
 
-        Worker onboardedWorker = service.onboard(request);
+        Worker onboardedWorker = service.onboard(request, NOW);
 
         assertThat(onboardedWorker).isSameAs(worker);
     }
 
     @Test
     void onboard_doesNotCreateWorker_whenUserCreationFails() {
-        when(userService.create(any(), any(), any()))
+        when(userService.create(any(), any(), any(), any()))
                 .thenThrow(new IllegalArgumentException());
 
-        assertThatThrownBy(() -> service.onboard(request()))
+        assertThatThrownBy(() -> service.onboard(request(), NOW))
                 .isInstanceOf(IllegalArgumentException.class);
 
         verifyNoInteractions(workerService);
