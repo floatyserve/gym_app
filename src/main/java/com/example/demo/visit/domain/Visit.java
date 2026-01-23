@@ -26,14 +26,14 @@ public class Visit {
     @Column(nullable = false)
     private boolean active;
 
-    public void checkout() {
-        this.checkedOutAt = Instant.now();
+    public void checkout(Instant checkedOutAt) {
+        this.checkedOutAt = checkedOutAt;
         this.active = false;
     }
 
-    public Visit(Customer customer) {
+    public Visit(Customer customer, Instant checkedInAt) {
         this.customer = customer;
-        this.checkedInAt = Instant.now();
+        this.checkedInAt = checkedInAt;
         this.active = true;
     }
 }
