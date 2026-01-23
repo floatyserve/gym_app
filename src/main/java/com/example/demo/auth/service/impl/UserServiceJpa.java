@@ -11,6 +11,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -34,7 +36,7 @@ public class UserServiceJpa implements UserService {
     }
 
     @Override
-    public User create(String email, String rawPassword, Role role) {
+    public User create(String email, String rawPassword, Role role, Instant at) {
         if (userRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("Email already in use: " + email);
         }
@@ -42,7 +44,8 @@ public class UserServiceJpa implements UserService {
         User user = new User(
                 email,
                 passwordEncoder.encode(rawPassword),
-                role
+                role,
+                at
         );
 
         return userRepository.save(user);

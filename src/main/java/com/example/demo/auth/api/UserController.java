@@ -12,6 +12,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Clock;
+
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
@@ -19,11 +21,18 @@ public class UserController {
 
     private final UserService userService;
     private final UserMapper userMapper;
+    private final Clock clock;
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public UserResponseDto create(@Valid @RequestBody CreateUserRequestDto dto) {
-        User user = userService.create(dto.email(), dto.password(), dto.role());
+        User user = userService.create(
+                dto.email(),
+                dto.password(),
+                dto.role(),
+                clock.instant()
+        );
+
         return userMapper.toDto(user);
     }
 

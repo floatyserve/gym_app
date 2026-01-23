@@ -38,12 +38,12 @@ public class User {
     @Setter
     private boolean passwordChanged;
 
-    public User(String email, String passwordHash, Role role) {
+    public User(String email, String passwordHash, Role role, Instant createdAt) {
         this.email = email;
         this.passwordHash = passwordHash;
         this.role = role;
+        this.createdAt = createdAt;
         this.active = true;
-        this.createdAt = Instant.now();
         this.passwordChanged = false;
     }
 
