@@ -7,6 +7,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import java.time.Instant;
+
 @Configuration
 @RequiredArgsConstructor
 @Profile("local")
@@ -33,7 +35,7 @@ public class DevUserBootstrapConfig implements CommandLineRunner {
         try {
             userService.findByEmail(email);
         } catch (Exception ex) {
-            userService.create(email, password, role);
+            userService.create(email, password, role, Instant.now());
         }
     }
 }
