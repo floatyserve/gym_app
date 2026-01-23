@@ -1,4 +1,4 @@
-package com.example.demo.staff.api;
+package com.example.demo.staff.api.controller;
 
 import com.example.demo.common.api.dto.PageResponseDto;
 import com.example.demo.security.UserPrincipal;
