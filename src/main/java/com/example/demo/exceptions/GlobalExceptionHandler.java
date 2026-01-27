@@ -61,4 +61,12 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ex);
     }
+
+    @ExceptionHandler(AlreadyExistsException.class)
+    public ResponseEntity<AlreadyExistsException> handleAlreadyExistsException(AlreadyExistsException ex) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ex);
+    }
+
 }
