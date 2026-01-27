@@ -30,38 +30,57 @@ public class Membership {
     private Instant startsAt;
     private Instant endsAt;
 
-    private boolean active;
-
-    public boolean isValidAt(Instant time) {
-        return active &&
-                !time.isBefore(startsAt) &&
-                !time.isAfter(endsAt);
-    }
+    @Enumerated(EnumType.STRING)
+    private MembershipStatus status;
 
     public Membership(
             Customer customer,
             MembershipType type,
             MembershipDuration period,
-            Integer visitLimit,
-            Instant startsAt,
-            Instant endsAt
+            Integer visitLimit
     ){
         this.customer = customer;
         this.type = type;
         this.duration = period;
         this.visitLimit = visitLimit;
-        this.startsAt = startsAt;
-        this.endsAt = endsAt;
-        this.active = true;
+        this.status = MembershipStatus.PENDING;
     }
 
     public boolean isLimited() {
         return type == MembershipType.LIMITED;
     }
 
-    public void reschedule(Instant startsAt, Instant endsAt) {
-        this.startsAt = startsAt;
-        this.endsAt = endsAt;
+    public boolean isActiveAt(Instant now) {
+        return status == MembershipStatus.ACTIVE
+                && !now.isBefore(startsAt)
+                && !now.isAfter(endsAt);
+    }
+
+    public void finishIfExpired(Instant now) {
+        if (status == MembershipStatus.ACTIVE && endsAt.isBefore(now)) {
+            finish(now);
+        }
+    }
+
+    public void activate(Instant now) {
+        this.startsAt = now;
+        this.endsAt = duration.addTo(now);
+        this.status = MembershipStatus.ACTIVE;
+    }
+
+    private void finish(Instant now) {
+        if (status != MembershipStatus.ACTIVE) {
+            throw new IllegalStateException("Only active memberships can be finished");
+        }
+        this.endsAt = now;
+        this.status = MembershipStatus.FINISHED;
+    }
+
+    public void cancel() {
+        if (status == MembershipStatus.FINISHED) {
+            throw new IllegalStateException("Finished membership cannot be cancelled");
+        }
+        this.status = MembershipStatus.CANCELLED;
     }
 
 }

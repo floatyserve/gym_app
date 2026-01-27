@@ -14,22 +14,18 @@ public interface MembershipLifecycleService {
 
     Membership findById(Long id);
 
-    Optional<Membership> findActiveMembership(Customer customer, Instant at);
+    Optional<Membership> findValidActiveMembership(Customer customer, Instant at);
 
     Membership create(
-            Customer customer,
-            MembershipType type,
-            MembershipDuration duration,
-            Integer visitLimit,
-            Instant startsAt
-    );
-
-    Membership continueMembership(
             Customer customer,
             MembershipType type,
             MembershipDuration duration,
             Integer visitLimit
     );
 
+    Membership activateNextPendingMembership(Customer customer);
+
     Page<Membership> findCustomerMemberships(Customer customer, Pageable pageable);
+
+    Membership cancelMembership(Membership membership);
 }

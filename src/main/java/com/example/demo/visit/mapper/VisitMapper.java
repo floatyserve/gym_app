@@ -12,6 +12,7 @@ import org.mapstruct.ReportingPolicy;
         unmappedTargetPolicy = ReportingPolicy.ERROR
 )
 public interface VisitMapper {
+    @Mapping(target = "id", source = "visit.id")
     @Mapping(target = "customerFullName", source = "visit.customer.fullName")
     @Mapping(target = "receptionistFullName", source = "worker.fullName")
     VisitResponseDto toDto(Visit visit, Worker worker);

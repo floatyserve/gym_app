@@ -4,29 +4,33 @@ import com.example.demo.customer.domain.Customer;
 import com.example.demo.exceptions.BadRequestException;
 import com.example.demo.exceptions.ReferenceNotFoundException;
 import com.example.demo.membership.domain.Membership;
-import com.example.demo.membership.domain.MembershipDuration;
+import com.example.demo.membership.domain.MembershipStatus;
 import com.example.demo.membership.domain.MembershipType;
+import com.example.demo.membership.domain.MembershipDuration;
 import com.example.demo.membership.repository.MembershipRepository;
 import com.example.demo.membership.service.impl.MembershipLifecycleServiceJpa;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.*;
+import org.mockito.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
+import java.time.Clock;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
 class MembershipLifecycleServiceJpaTest {
 
     @Mock
     private MembershipRepository membershipRepository;
+
+    @Mock
+    private Clock clock;
 
     @InjectMocks
     private MembershipLifecycleServiceJpa service;
@@ -36,217 +40,139 @@ class MembershipLifecycleServiceJpaTest {
 
     @BeforeEach
     void setUp() {
-        customer = mock(Customer.class);
+        MockitoAnnotations.openMocks(this);
+        customer = new Customer("John Doe", "1234567890", "john@example.com", null);
         now = Instant.now();
+        when(clock.instant()).thenReturn(now);
     }
 
-    // -------------------------------------------------
-    // findById
-    // -------------------------------------------------
-
     @Test
-    void findById_shouldReturnMembership_whenExists() {
-        Membership membership = mock(Membership.class);
-        when(membershipRepository.findById(1L))
-                .thenReturn(Optional.of(membership));
+    void findById_found() {
+        Membership membership = new Membership(customer, MembershipType.UNLIMITED, MembershipDuration.MONTH, null);
+        membership.activate(now);
+        when(membershipRepository.findById(1L)).thenReturn(Optional.of(membership));
 
         Membership result = service.findById(1L);
 
-        assertSame(membership, result);
+        assertEquals(membership, result);
     }
 
     @Test
-    void findById_shouldThrow_whenNotFound() {
-        when(membershipRepository.findById(1L))
-                .thenReturn(Optional.empty());
+    void findById_notFound() {
+        when(membershipRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(
-                ReferenceNotFoundException.class,
-                () -> service.findById(1L)
-        );
+        assertThrows(ReferenceNotFoundException.class, () -> service.findById(1L));
     }
 
-    // -------------------------------------------------
-    // findActiveMembership
-    // -------------------------------------------------
-
     @Test
-    void findActiveMembership_shouldDelegateToRepository() {
-        Membership membership = mock(Membership.class);
+    void findActiveMembership_present() {
+        Membership active = new Membership(customer, MembershipType.UNLIMITED, MembershipDuration.MONTH, null);
+        active.activate(now);
+        when(membershipRepository.findByCustomerAndStatusAndStartsAtLessThanEqualAndEndsAtGreaterThanEqual(
+                eq(customer), eq(MembershipStatus.ACTIVE), eq(now), eq(now)
+        )).thenReturn(Optional.of(active));
 
-        when(membershipRepository
-                .findByCustomerAndActiveTrueAndStartsAtLessThanEqualAndEndsAtGreaterThanEqual(
-                        customer, now, now))
-                .thenReturn(Optional.of(membership));
 
-        Optional<Membership> result =
-                service.findActiveMembership(customer, now);
+        Optional<Membership> result = service.findValidActiveMembership(customer, now);
 
         assertTrue(result.isPresent());
-        assertSame(membership, result.get());
-    }
-
-    // -------------------------------------------------
-    // create
-    // -------------------------------------------------
-
-    @Test
-    void create_shouldCreateMembership_whenValidUnlimited() {
-        when(membershipRepository.existsByCustomerAndActiveTrueAndStartsAtLessThanAndEndsAtGreaterThan(
-                any(), any(), any()))
-                .thenReturn(false);
-
-        when(membershipRepository.save(any()))
-                .thenAnswer(inv -> inv.getArgument(0));
-
-        Membership membership = service.create(
-                customer,
-                MembershipType.UNLIMITED,
-                MembershipDuration.MONTH,
-                null,
-                now
-        );
-
-        assertNotNull(membership);
-        assertEquals(customer, membership.getCustomer());
-        assertEquals(MembershipType.UNLIMITED, membership.getType());
+        assertEquals(active, result.get());
     }
 
     @Test
-    void create_shouldThrow_whenDurationIsNull() {
-        assertThrows(
-                BadRequestException.class,
-                () -> service.create(
-                        customer,
-                        MembershipType.UNLIMITED,
-                        null,
-                        null,
-                        now
-                )
-        );
+    void findActiveMembership_absent() {
+        when(membershipRepository.findByCustomerAndStatusAndStartsAtLessThanEqualAndEndsAtGreaterThanEqual(
+                eq(customer), eq(MembershipStatus.ACTIVE), eq(now), eq(now)
+        )).thenReturn(Optional.empty());
+
+        Optional<Membership> result = service.findValidActiveMembership(customer, now);
+
+        assertFalse(result.isPresent());
     }
 
     @Test
-    void create_shouldThrow_whenOverlappingMembershipExists() {
-        when(membershipRepository.existsByCustomerAndActiveTrueAndStartsAtLessThanAndEndsAtGreaterThan(
-                any(), any(), any()))
-                .thenReturn(true);
+    void create_validLimitedMembership() {
+        when(membershipRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-        assertThrows(
-                BadRequestException.class,
-                () -> service.create(
-                        customer,
-                        MembershipType.UNLIMITED,
-                        MembershipDuration.MONTH,
-                        null,
-                        now
-                )
-        );
+        Membership membership = service.create(customer, MembershipType.LIMITED, MembershipDuration.MONTH, 10);
+
+        assertEquals(MembershipStatus.PENDING, membership.getStatus());
+        assertEquals(10, membership.getVisitLimit());
+        verify(membershipRepository).save(membership);
     }
 
     @Test
-    void create_shouldThrow_whenLimitedWithoutVisitLimit() {
-        when(membershipRepository.existsByCustomerAndActiveTrueAndStartsAtLessThanAndEndsAtGreaterThan(
-                any(), any(), any()))
-                .thenReturn(false);
+    void create_validUnlimitedMembership() {
+        when(membershipRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-        assertThrows(
-                BadRequestException.class,
-                () -> service.create(
-                        customer,
-                        MembershipType.LIMITED,
-                        MembershipDuration.MONTH,
-                        null,
-                        now
-                )
-        );
+        Membership membership = service.create(customer, MembershipType.UNLIMITED, MembershipDuration.MONTH, null);
+
+        assertEquals(MembershipStatus.PENDING, membership.getStatus());
+        assertNull(membership.getVisitLimit());
+        verify(membershipRepository).save(membership);
     }
 
     @Test
-    void create_shouldThrow_whenUnlimitedWithVisitLimit() {
-        when(membershipRepository.existsByCustomerAndActiveTrueAndStartsAtLessThanAndEndsAtGreaterThan(
-                any(), any(), any()))
-                .thenReturn(false);
-
-        assertThrows(
-                BadRequestException.class,
-                () -> service.create(
-                        customer,
-                        MembershipType.UNLIMITED,
-                        MembershipDuration.MONTH,
-                        10,
-                        now
-                )
-        );
-    }
-
-    // -------------------------------------------------
-    // continueMembership
-    // -------------------------------------------------
-
-    @Test
-    void continueMembership_shouldStartAfterLastMembershipEnds() {
-        Membership last = mock(Membership.class);
-        Instant lastEnd = now.minusSeconds(60);
-
-        when(last.getEndsAt()).thenReturn(lastEnd);
-        when(membershipRepository.findTopByCustomerOrderByEndsAtDesc(customer))
-                .thenReturn(Optional.of(last));
-
-        when(membershipRepository.existsByCustomerAndActiveTrueAndStartsAtLessThanAndEndsAtGreaterThan(
-                any(), any(), any()))
-                .thenReturn(false);
-
-        when(membershipRepository.save(any()))
-                .thenAnswer(inv -> inv.getArgument(0));
-
-        Membership result = service.continueMembership(
-                customer,
-                MembershipType.UNLIMITED,
-                MembershipDuration.MONTH,
-                null
-        );
-
-        assertEquals(lastEnd, result.getStartsAt());
+    void create_invalidDuration() {
+        assertThrows(BadRequestException.class, () -> service.create(customer, MembershipType.UNLIMITED, null, null));
     }
 
     @Test
-    void continueMembership_shouldStartNow_whenNoPreviousMembership() {
-        when(membershipRepository.findTopByCustomerOrderByEndsAtDesc(customer))
+    void create_invalidVisitLimitForLimited() {
+        assertThrows(BadRequestException.class,
+                () -> service.create(customer, MembershipType.LIMITED, MembershipDuration.MONTH, null));
+    }
+
+    @Test
+    void create_invalidVisitLimitForUnlimited() {
+        assertThrows(BadRequestException.class,
+                () -> service.create(customer, MembershipType.UNLIMITED, MembershipDuration.MONTH, 5));
+    }
+
+    @Test
+    void activateNextPendingMembership_success() {
+        Membership pending = new Membership(customer, MembershipType.UNLIMITED, MembershipDuration.MONTH, null);
+
+        when(membershipRepository.existsByCustomerAndStatus(customer, MembershipStatus.ACTIVE)).thenReturn(false);
+        when(membershipRepository.findTopByCustomerAndStatusOrderByIdAsc(customer, MembershipStatus.PENDING))
+                .thenReturn(Optional.of(pending));
+
+        Membership activated = service.activateNextPendingMembership(customer);
+
+        assertEquals(MembershipStatus.ACTIVE, activated.getStatus());
+        assertEquals(now, activated.getStartsAt());
+        assertEquals(activated.getEndsAt(), MembershipDuration.MONTH.addTo(now));
+    }
+
+    @Test
+    void activateNextPendingMembership_alreadyActive() {
+        when(membershipRepository.existsByCustomerAndStatus(customer, MembershipStatus.ACTIVE)).thenReturn(true);
+
+        assertThrows(BadRequestException.class,
+                () -> service.activateNextPendingMembership(customer));
+    }
+
+    @Test
+    void activateNextPendingMembership_noPending() {
+        when(membershipRepository.existsByCustomerAndStatus(customer, MembershipStatus.ACTIVE)).thenReturn(false);
+        when(membershipRepository.findTopByCustomerAndStatusOrderByIdAsc(customer, MembershipStatus.PENDING))
                 .thenReturn(Optional.empty());
 
-        when(membershipRepository.existsByCustomerAndActiveTrueAndStartsAtLessThanAndEndsAtGreaterThan(
-                any(), any(), any()))
-                .thenReturn(false);
-
-        when(membershipRepository.save(any()))
-                .thenAnswer(inv -> inv.getArgument(0));
-
-        Membership result = service.continueMembership(
-                customer,
-                MembershipType.UNLIMITED,
-                MembershipDuration.MONTH,
-                null
-        );
-
-        assertNotNull(result.getStartsAt());
+        assertThrows(BadRequestException.class,
+                () -> service.activateNextPendingMembership(customer));
     }
 
-    // -------------------------------------------------
-    // findCustomerMemberships
-    // -------------------------------------------------
-
     @Test
-    void findCustomerMemberships_shouldReturnPage() {
-        Pageable pageable = PageRequest.of(0, 10);
-        Page<Membership> page = new PageImpl<>(java.util.List.of());
+    void findCustomerMemberships_returnsPage() {
+        Membership m1 = new Membership(customer, MembershipType.UNLIMITED, MembershipDuration.MONTH, null);
+        Membership m2 = new Membership(customer, MembershipType.LIMITED, MembershipDuration.YEAR, 5);
 
-        when(membershipRepository.findByCustomer(customer, pageable))
-                .thenReturn(page);
+        Page<Membership> page = new PageImpl<>(List.of(m1, m2));
+        when(membershipRepository.findByCustomer(customer, Pageable.unpaged())).thenReturn(page);
 
-        Page<Membership> result =
-                service.findCustomerMemberships(customer, pageable);
+        Page<Membership> result = service.findCustomerMemberships(customer, Pageable.unpaged());
 
-        assertSame(page, result);
+        assertEquals(2, result.getTotalElements());
+        verify(membershipRepository).findByCustomer(customer, Pageable.unpaged());
     }
 }

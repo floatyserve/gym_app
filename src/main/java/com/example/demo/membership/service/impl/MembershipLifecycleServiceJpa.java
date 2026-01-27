@@ -5,6 +5,7 @@ import com.example.demo.exceptions.BadRequestException;
 import com.example.demo.exceptions.ReferenceNotFoundException;
 import com.example.demo.membership.domain.Membership;
 import com.example.demo.membership.domain.MembershipDuration;
+import com.example.demo.membership.domain.MembershipStatus;
 import com.example.demo.membership.domain.MembershipType;
 import com.example.demo.membership.repository.MembershipRepository;
 import com.example.demo.membership.service.MembershipLifecycleService;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Optional;
 
@@ -23,6 +25,7 @@ import java.util.Optional;
 public class MembershipLifecycleServiceJpa implements MembershipLifecycleService {
 
     private final MembershipRepository membershipRepository;
+    private final Clock clock;
 
     @Override
     public Membership findById(Long id) {
@@ -33,54 +36,69 @@ public class MembershipLifecycleServiceJpa implements MembershipLifecycleService
     }
 
     @Override
-    public Optional<Membership> findActiveMembership(Customer customer, Instant at) {
+    public Optional<Membership> findValidActiveMembership(Customer customer, Instant now) {
+        Optional<Membership> activeOptional = findActiveMembership(customer, now);
+
+        if (activeOptional.isPresent()) {
+            Membership membership = activeOptional.get();
+            if (membership.getEndsAt().isBefore(now)) {
+                membership.finishIfExpired(now);
+                membershipRepository.save(membership);
+                return Optional.empty();
+            }
+        }
+
+        return activeOptional;
+    }
+
+    private Optional<Membership> findActiveMembership(Customer customer, Instant now) {
         return membershipRepository
-                .findByCustomerAndActiveTrueAndStartsAtLessThanEqualAndEndsAtGreaterThanEqual(
+                .findByCustomerAndStatusAndStartsAtLessThanEqualAndEndsAtGreaterThanEqual(
                         customer,
-                        at,
-                        at
+                        MembershipStatus.ACTIVE,
+                        now,
+                        now
                 );
     }
 
     @Override
-    public Membership create(Customer customer,
-                             MembershipType type,
-                             MembershipDuration duration,
-                             Integer visitLimit,
-                             Instant startsAt
+    public Membership create(
+            Customer customer,
+            MembershipType type,
+            MembershipDuration duration,
+            Integer visitLimit
     ) {
         if (duration == null) {
             throw new BadRequestException("Membership duration is required");
         }
 
-        Instant endsAt = duration.addTo(startsAt);
+        validateVisitLimit(type, visitLimit);
 
         Membership membership = new Membership(
                 customer,
                 type,
                 duration,
-                visitLimit,
-                startsAt,
-                endsAt
+                visitLimit
         );
-
-        assertCreationCorrectness(membership);
 
         return membershipRepository.save(membership);
     }
 
     @Override
-    public Membership continueMembership(Customer customer,
-                                         MembershipType type,
-                                         MembershipDuration duration,
-                                         Integer visitLimit
-    ) {
-        Instant start = membershipRepository
-                .findTopByCustomerOrderByEndsAtDesc(customer)
-                .map(Membership::getEndsAt)
-                .orElseGet(Instant::now);
+    public Membership activateNextPendingMembership(Customer customer) {
+        if (membershipRepository.existsByCustomerAndStatus(customer, MembershipStatus.ACTIVE)) {
+            throw new BadRequestException("Customer already has an active membership");
+        }
 
-        return create(customer, type, duration, visitLimit, start);
+        Membership pending = membershipRepository
+                .findTopByCustomerAndStatusOrderByIdAsc(customer, MembershipStatus.PENDING)
+                .orElseThrow(() ->
+                        new BadRequestException("No pending membership to activate")
+                );
+
+        pending.activate(clock.instant());
+
+        return pending;
     }
 
     @Override
@@ -88,27 +106,20 @@ public class MembershipLifecycleServiceJpa implements MembershipLifecycleService
         return membershipRepository.findByCustomer(customer, pageable);
     }
 
-    private void assertCreationCorrectness(Membership membership) {
-        if (membershipRepository.existsByCustomerAndActiveTrueAndStartsAtLessThanAndEndsAtGreaterThan(
-                membership.getCustomer(),
-                membership.getEndsAt(),
-                membership.getStartsAt()
-        )) {
-            throw new BadRequestException(
-                    "Membership period overlaps with an existing membership"
-            );
+    @Override
+    public Membership cancelMembership(Membership membership) {
+        membership.cancel();
+        return membershipRepository.save(membership);
+    }
+
+    private void validateVisitLimit(MembershipType type, Integer visitLimit) {
+        if (type == MembershipType.LIMITED && visitLimit == null) {
+            throw new BadRequestException("Visit limit is required for limited memberships");
         }
 
-        if (membership.getVisitLimit() != null && !membership.isLimited()) {
-            throw new BadRequestException(
-                    "Visit limit is only applicable to limited memberships"
-            );
-        }
-
-        if (membership.getVisitLimit() == null && membership.isLimited()) {
-            throw new BadRequestException(
-                    "Visit limit is required for limited memberships"
-            );
+        if (type != MembershipType.LIMITED && visitLimit != null) {
+            throw new BadRequestException("Visit limit is only applicable to limited memberships");
         }
     }
 }
+

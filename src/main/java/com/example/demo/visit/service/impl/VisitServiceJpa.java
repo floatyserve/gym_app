@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -59,8 +60,12 @@ public class VisitServiceJpa implements VisitService {
 
     @Override
     public Visit checkIn(Customer customer, Instant at) {
-        Membership membership = membershipLifecycleService.findActiveMembership(customer, at)
-                .orElseThrow(() -> new NoActiveMembershipException("Customer has no active membership"));
+        Optional<Membership> activeMembershipOptional = membershipLifecycleService.findValidActiveMembership(customer, at);
+
+        Membership membership;
+
+        membership = activeMembershipOptional
+                .orElseGet(() -> membershipLifecycleService.activateNextPendingMembership(customer));
 
         if (membershipUsageService.isExhausted(membership, at)) {
             throw new NoActiveMembershipException("Membership is exhausted");
@@ -72,6 +77,7 @@ public class VisitServiceJpa implements VisitService {
 
         return visit;
     }
+
 
     @Override
     public Visit checkOut(Long visitId, Instant at) {
