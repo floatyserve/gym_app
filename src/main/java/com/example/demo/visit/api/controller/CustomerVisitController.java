@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.Clock;
 
 @RestController
-@RequestMapping("/customers/{customerId}/visits")
+@RequestMapping("/api/customers/{customerId}/visits")
 @RequiredArgsConstructor
 public class CustomerVisitController {
 

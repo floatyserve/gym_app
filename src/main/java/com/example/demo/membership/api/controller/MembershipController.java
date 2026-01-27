@@ -13,7 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/memberships")
+@RequestMapping("/api/memberships")
 @RequiredArgsConstructor
 @PreAuthorize("hasAnyRole('ADMIN', 'RECEPTIONIST')")
 public class MembershipController {

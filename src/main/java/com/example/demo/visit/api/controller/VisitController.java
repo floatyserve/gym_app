@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.Clock;
 
 @RestController
-@RequestMapping("/visits")
+@RequestMapping("/api/visits")
 @RequiredArgsConstructor
 public class VisitController {
     private final VisitService visitService;
