@@ -18,4 +18,6 @@ public interface AccessCardRepository extends JpaRepository<AccessCard, Long> {
     boolean existsByCode(String code);
 
     boolean existsByCustomerAndStatus(Customer customer, AccessCardStatus status);
+
+    AccessCard findByCustomerAndStatus(Customer customer, AccessCardStatus status);
 }
