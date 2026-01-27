@@ -1,0 +1,55 @@
+package com.example.demo.card.api.controller;
+
+import com.example.demo.card.api.dto.AccessCardResponseDto;
+import com.example.demo.card.api.dto.CreateAccessCardRequest;
+import com.example.demo.card.mapper.AccessCardMapper;
+import com.example.demo.card.service.AccessCardService;
+import com.example.demo.common.api.dto.PageResponseDto;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/access-cards")
+@RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('ADMIN', 'RECEPTIONIST')")
+public class AccessCardController {
+    private final AccessCardService accessCardService;
+    private final AccessCardMapper mapper;
+
+    @GetMapping("/{id}")
+    public AccessCardResponseDto getAccessCardById(@PathVariable Long id){
+        return mapper.toDto(accessCardService.findById(id));
+    }
+
+    @GetMapping(value = "/by-code", params = "code")
+    public AccessCardResponseDto getAccessCardByCode(@RequestParam String code){
+        return mapper.toDto(accessCardService.findByCode(code));
+    }
+
+    @GetMapping
+    public PageResponseDto<AccessCardResponseDto> getAll(Pageable pageable){
+        return PageResponseDto.from(
+                accessCardService.findAll(pageable)
+                        .map(mapper::toDto)
+        );
+    }
+
+    @PostMapping("/{id}/revoke")
+    public AccessCardResponseDto revokeAccessCard(@PathVariable Long id){
+        return mapper.toDto(accessCardService.revoke(id));
+    }
+
+    @PostMapping("/{id}/mark-lost")
+    public AccessCardResponseDto markAccessCardLost(@PathVariable Long id){
+        return mapper.toDto(accessCardService.markLost(id));
+    }
+
+    @PostMapping
+    public AccessCardResponseDto createAccessCard(@RequestBody @Valid CreateAccessCardRequest request){
+        return mapper.toDto(accessCardService.create(request.code()));
+    }
+
+}

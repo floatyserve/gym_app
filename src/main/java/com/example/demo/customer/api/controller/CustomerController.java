@@ -2,6 +2,9 @@ package com.example.demo.customer.api.controller;
 
 import com.example.demo.auth.domain.User;
 import com.example.demo.auth.service.UserService;
+import com.example.demo.card.api.dto.AccessCardResponseDto;
+import com.example.demo.card.mapper.AccessCardMapper;
+import com.example.demo.card.service.AccessCardService;
 import com.example.demo.common.api.dto.PageResponseDto;
 import com.example.demo.customer.api.dto.CreateCustomerRequest;
 import com.example.demo.customer.api.dto.CustomerResponseDto;
@@ -36,6 +39,8 @@ public class CustomerController {
     private final CustomerMapper customerMapper;
     private final MembershipLifecycleService membershipLifecycleService;
     private final MembershipMapper membershipMapper;
+    private final AccessCardService accessCardService;
+    private final AccessCardMapper accessCardMapper;
     private final Clock clock;
 
     @GetMapping
@@ -79,6 +84,16 @@ public class CustomerController {
         return membership
                 .map(membershipMapper::toDto)
                 .orElseThrow(() -> new ReferenceNotFoundException("No active membership for customer"));
+    }
+
+    @GetMapping("/{customerId}/access-cards")
+    public PageResponseDto<AccessCardResponseDto> getAllByCustomer(@PathVariable Long customerId, Pageable pageable){
+        Customer customer = customerService.findById(customerId);
+
+        return PageResponseDto.from(
+                accessCardService.findByCustomer(customer, pageable)
+                        .map(accessCardMapper::toDto)
+        );
     }
 
     @PostMapping
