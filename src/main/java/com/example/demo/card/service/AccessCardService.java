@@ -10,6 +10,8 @@ public interface AccessCardService {
 
     AccessCard findByCode(String number);
 
+    AccessCard findActiveCard(Customer customer);
+
     AccessCard create(String number);
 
     Page<AccessCard> findAll(Pageable pageable);

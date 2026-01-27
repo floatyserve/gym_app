@@ -1,6 +1,7 @@
 package com.example.demo.card.service.impl;
 
 import com.example.demo.card.domain.AccessCard;
+import com.example.demo.card.domain.AccessCardStatus;
 import com.example.demo.card.repository.AccessCardRepository;
 import com.example.demo.card.service.AccessCardService;
 import com.example.demo.customer.domain.Customer;
@@ -28,6 +29,11 @@ public class AccessCardServiceJpa implements AccessCardService {
     public AccessCard findByCode(String code) {
         return accessCardRepository.findByCode(code)
                 .orElseThrow(() -> new ReferenceNotFoundException("Access card not found with code: " + code));
+    }
+
+    @Override
+    public AccessCard findActiveCard(Customer customer) {
+        return accessCardRepository.findByCustomerAndStatus(customer, AccessCardStatus.ACTIVE);
     }
 
     @Override

@@ -7,4 +7,6 @@ public interface AccessCardAssignmentService {
     AccessCard assignCard(AccessCard card, Customer customer);
 
     AccessCard detachFromCustomer(AccessCard card);
+
+    AccessCard replaceLostCard(Customer customer, AccessCard newCard);
 }
