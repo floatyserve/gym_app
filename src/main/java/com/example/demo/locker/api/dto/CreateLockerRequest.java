@@ -1,10 +1,8 @@
 package com.example.demo.locker.api.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import jakarta.validation.constraints.Positive;
 
-@Getter
-@AllArgsConstructor
-public class CreateLockerRequest {
-    private Integer number;
-}
+public record CreateLockerRequest(
+        @Positive
+        Integer number
+) {}

@@ -28,13 +28,13 @@ public class MembershipController {
 
     @PostMapping
     public MembershipResponseDto createMembership(@RequestBody @Valid CreateMembershipRequest request){
-        Customer customer = customerService.findById(request.getCustomerId());
+        Customer customer = customerService.findById(request.customerId());
 
         Membership membership = membershipLifecycleService.create(
                 customer,
-                request.getType(),
-                request.getDuration(),
-                request.getVisitLimit()
+                request.type(),
+                request.duration(),
+                request.visitLimit()
         );
 
         return mapper.toDto(membership);

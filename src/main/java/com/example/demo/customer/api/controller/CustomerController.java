@@ -89,9 +89,9 @@ public class CustomerController {
         User createdBy = userService.findById(userPrincipal.getId());
 
         Customer customer = customerService.create(
-                request.getFullName(),
-                request.getPhoneNumber(),
-                request.getEmail(),
+                request.fullName(),
+                request.phoneNumber(),
+                request.email(),
                 createdBy
         );
 
@@ -108,9 +108,9 @@ public class CustomerController {
 
         Customer updatedCustomer = customerService.update(
                 id,
-                request.getFullName(),
-                request.getPhoneNumber(),
-                request.getEmail(),
+                request.fullName(),
+                request.phoneNumber(),
+                request.email(),
                 updatedBy
         );
 

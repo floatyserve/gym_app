@@ -1,9 +1,5 @@
 package com.example.demo.visit.api.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+public record CreateVisitRequest (
 
-@AllArgsConstructor
-@Getter
-public class CreateVisitRequest {
-}
+) {}
