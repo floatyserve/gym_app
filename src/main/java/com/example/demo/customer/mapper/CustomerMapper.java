@@ -2,17 +2,13 @@ package com.example.demo.customer.mapper;
 
 import com.example.demo.customer.api.dto.CustomerResponseDto;
 import com.example.demo.customer.domain.Customer;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.ReportingPolicy;
 
-@Component
-public class CustomerMapper {
-    public CustomerResponseDto toDto(Customer customer) {
-        return new CustomerResponseDto(
-                customer.getId(),
-                customer.getFullName(),
-                customer.getPhoneNumber(),
-                customer.getEmail(),
-                customer.getCreatedAt()
-        );
-    }
+@Mapper(
+        componentModel = "spring",
+        unmappedTargetPolicy = ReportingPolicy.ERROR
+)
+public interface CustomerMapper {
+    CustomerResponseDto toDto(Customer customer);
 }

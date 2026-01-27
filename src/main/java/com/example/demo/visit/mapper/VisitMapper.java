@@ -3,17 +3,16 @@ package com.example.demo.visit.mapper;
 import com.example.demo.staff.domain.Worker;
 import com.example.demo.visit.api.dto.VisitResponseDto;
 import com.example.demo.visit.domain.Visit;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 
-@Component
-public class VisitMapper {
-    public VisitResponseDto toDto(Visit visit, Worker worker) {
-        return new VisitResponseDto(
-                visit.getId(),
-                visit.getCustomer().getFullName(),
-                worker.getFullName(),
-                visit.getCheckedInAt().toString(),
-                visit.getCheckedOutAt().toString()
-        );
-    }
+@Mapper(
+        componentModel = "spring",
+        unmappedTargetPolicy = ReportingPolicy.ERROR
+)
+public interface VisitMapper {
+    @Mapping(target = "customerFullName", source = "visit.customer.fullName")
+    @Mapping(target = "receptionistFullName", source = "worker.fullName")
+    VisitResponseDto toDto(Visit visit, Worker worker);
 }
