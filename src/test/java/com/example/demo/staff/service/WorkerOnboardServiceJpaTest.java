@@ -63,21 +63,42 @@ class WorkerOnboardServiceJpaTest {
                 1L
         )).thenReturn(worker);
 
-        Worker onboardedWorker = service.onboard(request, NOW);
+        Worker onboardedWorker = service.onboard(
+                request.email(),
+                request.password(),
+                request.role(),
+                request.firstName(),
+                request.lastName(),
+                request.phoneNumber(),
+                request.birthDate(),
+                NOW
+        );
 
         assertThat(onboardedWorker).isSameAs(worker);
     }
 
     @Test
     void onboard_doesNotCreateWorker_whenUserCreationFails() {
+        CreateWorkerOnboardingRequestDto request = request();
+
         when(userService.create(any(), any(), any(), any()))
                 .thenThrow(new IllegalArgumentException());
 
-        assertThatThrownBy(() -> service.onboard(request(), NOW))
+        assertThatThrownBy(() -> service.onboard(
+                request.email(),
+                request.password(),
+                request.role(),
+                request.firstName(),
+                request.lastName(),
+                request.phoneNumber(),
+                request.birthDate(),
+                NOW
+        ))
                 .isInstanceOf(IllegalArgumentException.class);
 
         verifyNoInteractions(workerService);
     }
+
 
     // ---------- test data ----------
 

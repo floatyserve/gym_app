@@ -45,7 +45,17 @@ public class WorkerController {
     public WorkerResponseDto createWorker(
             @Valid @RequestBody CreateWorkerOnboardingRequestDto req
     ) {
-        Worker worker = workerOnboardingService.onboard(req, clock.instant());
+        Worker worker = workerOnboardingService.onboard(
+                req.email(),
+                req.password(),
+                req.role(),
+                req.firstName(),
+                req.lastName(),
+                req.phoneNumber(),
+                req.birthDate(),
+                clock.instant()
+        );
+
         return workerMapper.toDto(worker);
     }
 
