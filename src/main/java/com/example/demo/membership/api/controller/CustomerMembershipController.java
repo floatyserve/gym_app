@@ -1,0 +1,57 @@
+package com.example.demo.membership.api.controller;
+
+import com.example.demo.common.api.dto.PageResponseDto;
+import com.example.demo.customer.domain.Customer;
+import com.example.demo.customer.service.CustomerService;
+import com.example.demo.exceptions.ReferenceNotFoundException;
+import com.example.demo.membership.api.dto.MembershipResponseDto;
+import com.example.demo.membership.domain.Membership;
+import com.example.demo.membership.mapper.MembershipMapper;
+import com.example.demo.membership.service.MembershipLifecycleService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.time.Clock;
+import java.util.Optional;
+
+@RestController
+@RequestMapping("/api/customers/{customerId}/memberships")
+@RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('ADMIN', 'RECEPTIONIST')")
+public class CustomerMembershipController {
+    private final CustomerService customerService;
+    private final MembershipLifecycleService membershipLifecycleService;
+    private final MembershipMapper mapper;
+    private final Clock clock;
+
+    @GetMapping
+    public PageResponseDto<MembershipResponseDto> getAllForCustomer(
+            @PathVariable Long customerId,
+            Pageable pageable
+    ) {
+        Customer customer = customerService.findById(customerId);
+
+        Page<MembershipResponseDto> result =
+                membershipLifecycleService.findCustomerMemberships(customer, pageable)
+                        .map(mapper::toDto);
+
+        return PageResponseDto.from(result);
+    }
+
+    @GetMapping("/active")
+    public MembershipResponseDto getActiveMembershipForCustomer(@PathVariable Long customerId) {
+        Customer customer = customerService.findById(customerId);
+
+        Optional<Membership> membership = membershipLifecycleService.findValidActiveMembership(customer, clock.instant());
+
+        return membership
+                .map(mapper::toDto)
+                .orElseThrow(() -> new ReferenceNotFoundException("No active membership for customer"));
+    }
+}
