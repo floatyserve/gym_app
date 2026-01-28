@@ -1,9 +1,55 @@
 package com.example.demo.locker.api.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.example.demo.common.api.dto.PageResponseDto;
+import com.example.demo.locker.api.dto.CreateLockerRequest;
+import com.example.demo.locker.api.dto.LockerResponseDto;
+import com.example.demo.locker.domain.Locker;
+import com.example.demo.locker.mapper.LockerMapper;
+import com.example.demo.locker.service.LockerAssignmentService;
+import com.example.demo.locker.service.LockerService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/lockers")
+@RequiredArgsConstructor
 public class LockerController {
+    private final LockerService lockerService;
+    private final LockerAssignmentService lockerAssignmentService;
+    private final LockerMapper mapper;
+
+    @GetMapping
+    public PageResponseDto<LockerResponseDto> getAllLockers(Pageable pageable) {
+        return PageResponseDto.from(
+                lockerService.findAllWithOccupancy(pageable)
+        );
+    }
+
+    @GetMapping("/available")
+    public PageResponseDto<LockerResponseDto> getAllAvailableLockers(Pageable pageable) {
+          return PageResponseDto.from(
+                  lockerService.findAvailableLockersWithOccupancy(pageable)
+          );
+    }
+
+    @PostMapping
+    public LockerResponseDto createLocker(@RequestBody @Valid CreateLockerRequest request){
+        Locker locker = lockerService.create(request.number());
+
+        return mapper.toDto(locker, lockerAssignmentService.isLockerOccupied(locker.getId()));
+    }
+
+    @PostMapping(value = "/{lockerId}/make-unavailable")
+    public LockerResponseDto makeUnavailable(@PathVariable Long lockerId){
+        Locker locker = lockerService.findById(lockerId);
+
+        Locker updatedLocker = lockerService.makeUnavailable(locker);
+
+        return mapper.toDto(updatedLocker, lockerAssignmentService.isLockerOccupied(lockerId));
+
+    }
+
+
 }
