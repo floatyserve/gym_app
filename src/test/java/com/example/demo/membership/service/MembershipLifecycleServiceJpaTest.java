@@ -11,7 +11,9 @@ import com.example.demo.membership.repository.MembershipRepository;
 import com.example.demo.membership.service.impl.MembershipLifecycleServiceJpa;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +26,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class MembershipLifecycleServiceJpaTest {
 
     @Mock
@@ -40,7 +43,6 @@ class MembershipLifecycleServiceJpaTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
         customer = new Customer("John Doe", "1234567890", "john@example.com", null);
         now = Instant.now();
         when(clock.instant()).thenReturn(now);
