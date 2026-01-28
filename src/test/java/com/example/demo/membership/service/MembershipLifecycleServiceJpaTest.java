@@ -39,19 +39,18 @@ class MembershipLifecycleServiceJpaTest {
     private MembershipLifecycleServiceJpa service;
 
     private Customer customer;
-    private Instant now;
+    private Instant NOW;
 
     @BeforeEach
     void setUp() {
         customer = new Customer("John Doe", "1234567890", "john@example.com", null);
-        now = Instant.now();
-        when(clock.instant()).thenReturn(now);
+        NOW = Instant.parse("2026-01-01T10:00:00Z");
     }
 
     @Test
     void findById_found() {
         Membership membership = new Membership(customer, MembershipType.UNLIMITED, MembershipDuration.MONTH, null);
-        membership.activate(now);
+        membership.activate(NOW);
         when(membershipRepository.findById(1L)).thenReturn(Optional.of(membership));
 
         Membership result = service.findById(1L);
@@ -69,13 +68,13 @@ class MembershipLifecycleServiceJpaTest {
     @Test
     void findActiveMembership_present() {
         Membership active = new Membership(customer, MembershipType.UNLIMITED, MembershipDuration.MONTH, null);
-        active.activate(now);
+        active.activate(NOW);
         when(membershipRepository.findByCustomerAndStatusAndStartsAtLessThanEqualAndEndsAtGreaterThanEqual(
-                eq(customer), eq(MembershipStatus.ACTIVE), eq(now), eq(now)
+                eq(customer), eq(MembershipStatus.ACTIVE), eq(NOW), eq(NOW)
         )).thenReturn(Optional.of(active));
 
 
-        Optional<Membership> result = service.findValidActiveMembership(customer, now);
+        Optional<Membership> result = service.findValidActiveMembership(customer, NOW);
 
         assertTrue(result.isPresent());
         assertEquals(active, result.get());
@@ -84,10 +83,10 @@ class MembershipLifecycleServiceJpaTest {
     @Test
     void findActiveMembership_absent() {
         when(membershipRepository.findByCustomerAndStatusAndStartsAtLessThanEqualAndEndsAtGreaterThanEqual(
-                eq(customer), eq(MembershipStatus.ACTIVE), eq(now), eq(now)
+                eq(customer), eq(MembershipStatus.ACTIVE), eq(NOW), eq(NOW)
         )).thenReturn(Optional.empty());
 
-        Optional<Membership> result = service.findValidActiveMembership(customer, now);
+        Optional<Membership> result = service.findValidActiveMembership(customer, NOW);
 
         assertFalse(result.isPresent());
     }
@@ -133,6 +132,8 @@ class MembershipLifecycleServiceJpaTest {
 
     @Test
     void activateNextPendingMembership_success() {
+        when(clock.instant()).thenReturn(NOW);
+
         Membership pending = new Membership(customer, MembershipType.UNLIMITED, MembershipDuration.MONTH, null);
 
         when(membershipRepository.existsByCustomerAndStatus(customer, MembershipStatus.ACTIVE)).thenReturn(false);
@@ -142,8 +143,8 @@ class MembershipLifecycleServiceJpaTest {
         Membership activated = service.activateNextPendingMembership(customer);
 
         assertEquals(MembershipStatus.ACTIVE, activated.getStatus());
-        assertEquals(now, activated.getStartsAt());
-        assertEquals(activated.getEndsAt(), MembershipDuration.MONTH.addTo(now));
+        assertEquals(NOW, activated.getStartsAt());
+        assertEquals(activated.getEndsAt(), MembershipDuration.MONTH.addTo(NOW));
     }
 
     @Test
