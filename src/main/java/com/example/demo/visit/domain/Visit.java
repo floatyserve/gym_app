@@ -16,6 +16,7 @@ public class Visit {
     private Long id;
 
     @ManyToOne(optional = false)
+    @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
 
     @Column(nullable = false)
