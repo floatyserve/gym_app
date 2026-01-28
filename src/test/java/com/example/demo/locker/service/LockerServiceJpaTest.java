@@ -106,16 +106,15 @@ class LockerServiceJpaTest {
 
     @Test
     void makeUnavailable_marksLockerOutOfOrder() {
-        Locker locker = mock(Locker.class);
-        when(locker.getStatus()).thenReturn(LockerStatus.AVAILABLE);
-        when(locker.getId()).thenReturn(1L);
-        when(lockerRepository.findById(1L)).thenReturn(Optional.of(locker));
-        when(lockerAssignmentRepository.existsByLockerIdAndReleasedAtIsNull(1L))
+        Locker locker = new Locker(1, LockerStatus.AVAILABLE);
+
+        when(lockerAssignmentRepository.existsByLockerIdAndReleasedAtIsNull(locker.getId()))
                 .thenReturn(false);
 
-        Locker result = lockerService.makeUnavailable(1L);
+        Locker result = lockerService.makeUnavailable(locker);
 
-        verify(locker).markOutOfOrder();
+        assertThat(result.getStatus()).isEqualTo(LockerStatus.OUT_OF_ORDER);
         assertThat(result).isSameAs(locker);
     }
+
 }

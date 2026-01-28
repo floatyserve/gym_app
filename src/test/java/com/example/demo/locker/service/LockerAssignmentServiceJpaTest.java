@@ -13,7 +13,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
@@ -59,11 +58,9 @@ class LockerAssignmentServiceJpaTest {
         Visit visit = mock(Visit.class);
 
         when(visit.getId()).thenReturn(1L);
-        when(lockerAssignmentRepository
-                .existsByVisitIdAndReleasedAtIsNull(1L))
-                .thenReturn(false);
+        when(lockerAssignmentRepository.existsByVisitIdAndReleasedAtIsNull(1L)).thenReturn(false);
 
-        when(lockerService.findAllAvailable()).thenReturn(List.of());
+        when(lockerService.findFirstAvailable()).thenThrow(new BadRequestException("No available lockers"));
 
         assertThatThrownBy(() ->
                 service.assignAvailableLockerToVisit(visit, NOW))
