@@ -55,7 +55,11 @@ public class LockerAssignmentServiceJpa implements LockerAssignmentService {
 
         LockerAssignment newAssignment = new LockerAssignment(visit, newLocker, assignedAt);
 
-        return lockerAssignmentRepository.save(newAssignment);
+        try {
+            return lockerAssignmentRepository.save(newAssignment);
+        } catch (DataIntegrityViolationException e) {
+            throw new BadRequestException("Locker was taken concurrently, retry");
+        }
     }
 
     @Override
