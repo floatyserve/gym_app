@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.List;
 
 @Service
 @Transactional
@@ -25,7 +24,6 @@ public class LockerAssignmentServiceJpa implements LockerAssignmentService {
 
     @Override
     public LockerAssignment assignLockerToVisitManually(Visit visit, Locker locker, Instant assignedAt) {
-
         assertVisitHasNoActiveLocker(visit);
         lockerService.assertAvailable(locker);
 
@@ -36,15 +34,9 @@ public class LockerAssignmentServiceJpa implements LockerAssignmentService {
 
     @Override
     public LockerAssignment assignAvailableLockerToVisit(Visit visit, Instant assignedAt) {
-
         assertVisitHasNoActiveLocker(visit);
 
-        List<Locker> available = lockerService.findAllAvailable();
-        if (available.isEmpty()) {
-            throw new BadRequestException("No available lockers");
-        }
-
-        Locker locker = available.getFirst();
+        Locker locker = lockerService.findFirstAvailable();
 
         try {
             return lockerAssignmentRepository.save(new LockerAssignment(visit, locker, assignedAt));
@@ -55,7 +47,6 @@ public class LockerAssignmentServiceJpa implements LockerAssignmentService {
 
     @Override
     public LockerAssignment reassignLocker(Visit visit, Locker newLocker, Instant assignedAt) {
-
         LockerAssignment current = findActiveAssignmentForVisit(visit);
 
         lockerService.assertAvailable(newLocker);
@@ -74,6 +65,11 @@ public class LockerAssignmentServiceJpa implements LockerAssignmentService {
                 .orElseThrow(() ->
                         new BadRequestException("Visit has no active locker")
                 );
+    }
+
+    @Override
+    public boolean isLockerOccupied(Long lockerId) {
+        return lockerAssignmentRepository.existsByLockerIdAndReleasedAtIsNull(lockerId);
     }
 
     private void assertVisitHasNoActiveLocker(Visit visit) {

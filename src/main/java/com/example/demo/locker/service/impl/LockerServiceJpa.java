@@ -2,6 +2,7 @@ package com.example.demo.locker.service.impl;
 
 import com.example.demo.exceptions.BadRequestException;
 import com.example.demo.exceptions.ReferenceNotFoundException;
+import com.example.demo.locker.api.dto.LockerResponseDto;
 import com.example.demo.locker.domain.Locker;
 import com.example.demo.locker.domain.LockerStatus;
 import com.example.demo.locker.repository.LockerAssignmentRepository;
@@ -12,8 +13,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @Transactional
@@ -28,14 +27,15 @@ public class LockerServiceJpa implements LockerService {
     }
 
     @Override
-    public List<Locker> findAllAvailable() {
-        return lockerRepository.findAvailableLockers();
-    }
-
-    @Override
     public Locker findById(Long id) {
         return lockerRepository.findById(id)
                 .orElseThrow(() -> new ReferenceNotFoundException("Locker not found with id: " + id));
+    }
+
+    @Override
+    public Locker findFirstAvailable() {
+        return lockerRepository.findFirstAvailableLocker()
+                .orElseThrow(() -> new BadRequestException("No available lockers"));
     }
 
     @Override
@@ -64,12 +64,20 @@ public class LockerServiceJpa implements LockerService {
     }
 
     @Override
-    public Locker makeUnavailable(Long id) {
-        Locker locker = findById(id);
-
+    public Locker makeUnavailable(Locker locker) {
         assertAvailable(locker);
 
         locker.markOutOfOrder();
         return locker;
+    }
+
+    @Override
+    public Page<LockerResponseDto> findAllWithOccupancy(Pageable pageable) {
+        return lockerRepository.findAllWithOccupancy(pageable);
+    }
+
+    @Override
+    public Page<LockerResponseDto> findAvailableLockersWithOccupancy(Pageable pageable) {
+        return lockerRepository.findAvailableLockersWithOccupancy(pageable);
     }
 }

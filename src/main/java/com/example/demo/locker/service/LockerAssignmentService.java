@@ -14,4 +14,6 @@ public interface LockerAssignmentService {
     LockerAssignment reassignLocker(Visit visit, Locker newLocker, Instant assignedAt);
 
     LockerAssignment findActiveAssignmentForVisit(Visit visit);
+
+    boolean isLockerOccupied(Long lockerId);
 }
