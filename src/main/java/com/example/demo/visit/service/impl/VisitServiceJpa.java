@@ -9,6 +9,7 @@ import com.example.demo.locker.service.LockerAssignmentService;
 import com.example.demo.membership.domain.Membership;
 import com.example.demo.membership.service.MembershipLifecycleService;
 import com.example.demo.membership.service.MembershipUsageService;
+import com.example.demo.staff.domain.Worker;
 import com.example.demo.visit.domain.Visit;
 import com.example.demo.visit.repository.VisitRepository;
 import com.example.demo.visit.service.VisitService;
@@ -59,7 +60,7 @@ public class VisitServiceJpa implements VisitService {
     }
 
     @Override
-    public Visit checkIn(Customer customer, Instant at) {
+    public Visit checkIn(Customer customer, Worker worker, Instant at) {
         Optional<Membership> activeMembershipOptional = membershipLifecycleService.findValidActiveMembership(customer, at);
 
         Membership membership;
@@ -71,7 +72,7 @@ public class VisitServiceJpa implements VisitService {
             throw new NoActiveMembershipException("Membership is exhausted");
         }
 
-        Visit visit = visitRepository.save(new Visit(customer, at));
+        Visit visit = visitRepository.save(new Visit(customer, worker, at));
 
         lockerAssignmentService.assignAvailableLockerToVisit(visit, at);
 

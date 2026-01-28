@@ -1,6 +1,7 @@
 package com.example.demo.visit.domain;
 
 import com.example.demo.customer.domain.Customer;
+import com.example.demo.staff.domain.Worker;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,10 @@ public class Visit {
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
 
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "worker_id", nullable = false)
+    private Worker worker;
+
     @Column(nullable = false)
     private Instant checkedInAt;
 
@@ -32,8 +37,9 @@ public class Visit {
         this.active = false;
     }
 
-    public Visit(Customer customer, Instant checkedInAt) {
+    public Visit(Customer customer, Worker worker, Instant checkedInAt) {
         this.customer = customer;
+        this.worker = worker;
         this.checkedInAt = checkedInAt;
         this.active = true;
     }

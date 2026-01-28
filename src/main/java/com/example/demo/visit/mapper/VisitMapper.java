@@ -1,6 +1,5 @@
 package com.example.demo.visit.mapper;
 
-import com.example.demo.staff.domain.Worker;
 import com.example.demo.visit.api.dto.VisitResponseDto;
 import com.example.demo.visit.domain.Visit;
 import org.mapstruct.Mapper;
@@ -14,6 +13,6 @@ import org.mapstruct.ReportingPolicy;
 public interface VisitMapper {
     @Mapping(target = "id", source = "visit.id")
     @Mapping(target = "customerFullName", source = "visit.customer.fullName")
-    @Mapping(target = "receptionistFullName", source = "worker.fullName")
-    VisitResponseDto toDto(Visit visit, Worker worker);
+    @Mapping(target = "receptionistFullName", source = "visit.worker.fullName")
+    VisitResponseDto toDto(Visit visit);
 }
