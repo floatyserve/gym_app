@@ -4,8 +4,8 @@ import java.time.Instant;
 import java.time.LocalDate;
 
 public record WorkerResponseDto(
-        String firstname,
-        String lastname,
+        String firstName,
+        String lastName,
         String phoneNumber,
         LocalDate birthDate,
         Instant hiredAt,
