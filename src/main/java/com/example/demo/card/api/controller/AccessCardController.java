@@ -12,7 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/access-cards")
+@RequestMapping("/api/access-cards")
 @RequiredArgsConstructor
 @PreAuthorize("hasAnyRole('ADMIN', 'RECEPTIONIST')")
 public class AccessCardController {
