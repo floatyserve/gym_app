@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.time.Instant;
 
@@ -11,6 +12,7 @@ import java.time.Instant;
 @Table(name = "users")
 @Getter
 @NoArgsConstructor
+@ToString
 public class User {
 
     @Id

@@ -4,6 +4,7 @@ import com.example.demo.auth.domain.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -12,6 +13,7 @@ import java.time.LocalDate;
 @Table(name = "workers")
 @Getter
 @NoArgsConstructor
+@ToString(exclude = "user")
 public class Worker {
 
     @Id
