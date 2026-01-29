@@ -1,9 +1,10 @@
-package com.example.demo.locker.service;
+package com.example.demo.unit.service.locker;
 
 import com.example.demo.exceptions.BadRequestException;
 import com.example.demo.locker.domain.Locker;
 import com.example.demo.locker.domain.LockerAssignment;
 import com.example.demo.locker.repository.LockerAssignmentRepository;
+import com.example.demo.locker.service.LockerService;
 import com.example.demo.locker.service.impl.LockerAssignmentServiceJpa;
 import com.example.demo.visit.domain.Visit;
 import org.junit.jupiter.api.Test;

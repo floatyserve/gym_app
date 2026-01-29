@@ -1,4 +1,4 @@
-package com.example.demo.membership.service;
+package com.example.demo.unit.service.membership;
 
 import com.example.demo.customer.domain.Customer;
 import com.example.demo.membership.domain.Membership;

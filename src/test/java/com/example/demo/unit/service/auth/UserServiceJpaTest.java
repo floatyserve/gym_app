@@ -1,4 +1,4 @@
-package com.example.demo.auth.service;
+package com.example.demo.unit.service.auth;
 
 import com.example.demo.auth.domain.Role;
 import com.example.demo.auth.domain.User;

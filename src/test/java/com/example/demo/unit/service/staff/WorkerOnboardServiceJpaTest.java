@@ -1,10 +1,11 @@
-package com.example.demo.staff.service;
+package com.example.demo.unit.service.staff;
 
 import com.example.demo.auth.domain.Role;
 import com.example.demo.auth.domain.User;
 import com.example.demo.auth.service.impl.UserServiceJpa;
 import com.example.demo.staff.api.dto.CreateWorkerOnboardingRequestDto;
 import com.example.demo.staff.domain.Worker;
+import com.example.demo.staff.service.WorkerService;
 import com.example.demo.staff.service.impl.WorkerOnboardServiceJpa;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

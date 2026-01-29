@@ -1,4 +1,4 @@
-package com.example.demo.locker.service;
+package com.example.demo.unit.service.locker;
 
 import com.example.demo.exceptions.BadRequestException;
 import com.example.demo.exceptions.ReferenceNotFoundException;

@@ -1,4 +1,4 @@
-package com.example.demo.accesscard.service;
+package com.example.demo.unit.service.accesscard;
 
 import com.example.demo.card.domain.AccessCard;
 import com.example.demo.card.domain.AccessCardStatus;

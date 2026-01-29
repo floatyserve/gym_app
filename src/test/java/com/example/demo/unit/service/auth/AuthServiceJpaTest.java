@@ -1,6 +1,7 @@
-package com.example.demo.auth.service;
+package com.example.demo.unit.service.auth;
 
 import com.example.demo.auth.domain.User;
+import com.example.demo.auth.service.UserService;
 import com.example.demo.auth.service.impl.AuthServiceJpa;
 import com.example.demo.exceptions.BadRequestException;
 import com.example.demo.security.JwtTokenProvider;

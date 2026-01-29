@@ -1,4 +1,4 @@
-package com.example.demo.staff.service;
+package com.example.demo.unit.service.staff;
 
 import com.example.demo.auth.domain.User;
 import com.example.demo.auth.service.UserService;
