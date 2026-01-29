@@ -16,7 +16,6 @@ import java.time.Instant;
                 @Index(name = "idx_customer_phone", columnList = "phoneNumber")
         }
 )
-
 public class Customer {
 
     @Id
@@ -26,10 +25,10 @@ public class Customer {
     @Column(nullable = false)
     private String fullName;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String phoneNumber;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
     @Column(nullable = false, updatable = false)
