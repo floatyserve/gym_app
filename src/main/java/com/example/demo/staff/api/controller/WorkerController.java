@@ -35,9 +35,16 @@ public class WorkerController {
         );
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'RECEPTIONIST')")
     @GetMapping("/{id}")
     public WorkerResponseDto getById(@PathVariable Long id){
         return workerMapper.toDto(workerService.findById(id));
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'RECEPTIONIST')")
+    @GetMapping("/by-user-id/{userId}")
+    public WorkerResponseDto getByUserId(@PathVariable Long userId){
+        return workerMapper.toDto(workerService.findByUserId(userId));
     }
 
     @PostMapping
