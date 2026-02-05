@@ -4,6 +4,7 @@ import com.example.demo.common.api.dto.PageResponseDto;
 import com.example.demo.locker.api.dto.CreateLockerRequest;
 import com.example.demo.locker.api.dto.LockerResponseDto;
 import com.example.demo.locker.domain.Locker;
+import com.example.demo.locker.domain.LockerStats;
 import com.example.demo.locker.mapper.LockerMapper;
 import com.example.demo.locker.service.LockerAssignmentService;
 import com.example.demo.locker.service.LockerService;
@@ -34,6 +35,11 @@ public class LockerController {
           return PageResponseDto.from(
                   lockerService.findAvailableLockersWithOccupancy(pageable)
           );
+    }
+
+    @GetMapping("/stats")
+    public LockerStats getLockerStats(){
+        return lockerService.getLockerStats();
     }
 
     @PostMapping

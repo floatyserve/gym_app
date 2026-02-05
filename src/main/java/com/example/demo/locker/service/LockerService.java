@@ -2,6 +2,7 @@ package com.example.demo.locker.service;
 
 import com.example.demo.locker.api.dto.LockerResponseDto;
 import com.example.demo.locker.domain.Locker;
+import com.example.demo.locker.domain.LockerStats;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -21,4 +22,6 @@ public interface LockerService {
     Page<LockerResponseDto> findAllWithOccupancy(Pageable pageable);
 
     Page<LockerResponseDto> findAvailableLockersWithOccupancy(Pageable pageable);
+
+    LockerStats getLockerStats();
 }

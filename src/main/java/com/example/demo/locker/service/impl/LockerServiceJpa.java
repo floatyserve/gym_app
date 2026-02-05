@@ -4,6 +4,7 @@ import com.example.demo.exceptions.BadRequestException;
 import com.example.demo.exceptions.ReferenceNotFoundException;
 import com.example.demo.locker.api.dto.LockerResponseDto;
 import com.example.demo.locker.domain.Locker;
+import com.example.demo.locker.domain.LockerStats;
 import com.example.demo.locker.domain.LockerStatus;
 import com.example.demo.locker.repository.LockerAssignmentRepository;
 import com.example.demo.locker.repository.LockerRepository;
@@ -83,5 +84,15 @@ public class LockerServiceJpa implements LockerService {
     @Override
     public Page<LockerResponseDto> findAvailableLockersWithOccupancy(Pageable pageable) {
         return lockerRepository.findAvailableLockersWithOccupancy(pageable);
+    }
+
+    @Override
+    public LockerStats getLockerStats() {
+        long totalCount = lockerRepository.count();
+        long availableCount = lockerRepository.countAvailableLockers();
+        long occupiedCount = lockerRepository.countOccupiedLockers();
+        long outOfOrderCount = lockerRepository.countUnavailableLockers();
+
+        return new LockerStats(totalCount, availableCount, occupiedCount, outOfOrderCount);
     }
 }
