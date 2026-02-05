@@ -1,10 +1,15 @@
 package com.example.demo.visit.api.controller;
 
+import com.example.demo.common.api.dto.PageResponseDto;
+import com.example.demo.visit.api.dto.ActiveVisitResponseDto;
 import com.example.demo.visit.api.dto.VisitResponseDto;
 import com.example.demo.visit.domain.Visit;
 import com.example.demo.visit.mapper.VisitMapper;
 import com.example.demo.visit.service.VisitService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +24,18 @@ public class VisitController {
     private final VisitMapper mapper;
     private final Clock clock;
 
-    @GetMapping("/{visitId}")
+    @GetMapping("/active")
+    public PageResponseDto<ActiveVisitResponseDto> getAllActiveVisits(
+            @PageableDefault(sort = "checkedInAt", direction = Sort.Direction.ASC)
+            Pageable pageable
+    ) {
+        return PageResponseDto.from(
+                visitService.findActiveVisitViews(pageable)
+                        .map(mapper::toActiveDto)
+        );
+    }
+
+    @GetMapping("/{visitId:\\d+}")
     public VisitResponseDto getVisit(
             @PathVariable Long visitId
     ) {

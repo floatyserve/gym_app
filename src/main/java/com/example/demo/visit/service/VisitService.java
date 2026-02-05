@@ -2,6 +2,7 @@ package com.example.demo.visit.service;
 
 import com.example.demo.customer.domain.Customer;
 import com.example.demo.staff.domain.Worker;
+import com.example.demo.visit.domain.ActiveVisitView;
 import com.example.demo.visit.domain.Visit;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,6 +15,8 @@ public interface VisitService {
     Visit findActiveVisit(Long id);
 
     Visit findActiveCustomerVisit(Customer customer);
+
+    Page<ActiveVisitView> findActiveVisitViews(Pageable pageable);
 
     Page<Visit> getVisitHistory(Customer customer, Pageable pageable);
 

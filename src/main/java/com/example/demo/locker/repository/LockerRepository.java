@@ -7,7 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import java.util.Optional;
+import java.util.List;
 
 public interface LockerRepository extends JpaRepository<Locker, Long> {
     @Query("""
@@ -30,10 +30,15 @@ GROUP BY l.id, l.number, l.status
     boolean existsByNumber(Integer number);
 
     @Query("""
-SELECT l FROM Locker l WHERE l.status = 'AVAILABLE' AND NOT EXISTS (
-  SELECT 1 FROM LockerAssignment la WHERE la.locker = l AND la.releasedAt IS NULL
-) ORDER BY l.id
+SELECT l FROM Locker l
+WHERE l.status = 'AVAILABLE'
+AND NOT EXISTS (
+  SELECT 1 FROM LockerAssignment la
+  WHERE la.locker = l AND la.releasedAt IS NULL
+)
+ORDER BY l.id
 """)
-    Optional<Locker> findFirstAvailableLocker();
+    List<Locker> findAvailableLockers(Pageable pageable);
+
 
 }

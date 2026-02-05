@@ -10,6 +10,7 @@ import com.example.demo.membership.domain.Membership;
 import com.example.demo.membership.service.MembershipLifecycleService;
 import com.example.demo.membership.service.MembershipUsageService;
 import com.example.demo.staff.domain.Worker;
+import com.example.demo.visit.domain.ActiveVisitView;
 import com.example.demo.visit.domain.Visit;
 import com.example.demo.visit.repository.VisitRepository;
 import com.example.demo.visit.service.VisitService;
@@ -52,6 +53,11 @@ public class VisitServiceJpa implements VisitService {
     public Visit findActiveCustomerVisit(Customer customer) {
         return visitRepository.findByCustomerAndActiveTrue(customer)
                 .orElseThrow(() -> new BadRequestException("Customer has no active visit"));
+    }
+
+    @Override
+    public Page<ActiveVisitView> findActiveVisitViews(Pageable pageable) {
+        return visitRepository.findActiveVisitViews(pageable);
     }
 
     @Override

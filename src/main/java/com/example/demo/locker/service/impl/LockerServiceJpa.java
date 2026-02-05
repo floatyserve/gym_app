@@ -10,6 +10,7 @@ import com.example.demo.locker.repository.LockerRepository;
 import com.example.demo.locker.service.LockerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,7 +35,10 @@ public class LockerServiceJpa implements LockerService {
 
     @Override
     public Locker findFirstAvailable() {
-        return lockerRepository.findFirstAvailableLocker()
+        return lockerRepository
+                .findAvailableLockers(PageRequest.of(0, 1))
+                .stream()
+                .findFirst()
                 .orElseThrow(() -> new BadRequestException("No available lockers"));
     }
 
