@@ -24,6 +24,14 @@ public class VisitController {
     private final VisitMapper mapper;
     private final Clock clock;
 
+    @GetMapping("/{visitId}")
+    public VisitResponseDto getVisit(
+            @PathVariable Long visitId
+    ) {
+        Visit visit = visitService.findById(visitId);
+        return mapper.toDto(visit);
+    }
+
     @GetMapping("/active")
     public PageResponseDto<ActiveVisitResponseDto> getAllActiveVisits(
             @PageableDefault(sort = "checkedInAt", direction = Sort.Direction.ASC)
@@ -33,14 +41,6 @@ public class VisitController {
                 visitService.findActiveVisitViews(pageable)
                         .map(mapper::toActiveDto)
         );
-    }
-
-    @GetMapping("/{visitId:\\d+}")
-    public VisitResponseDto getVisit(
-            @PathVariable Long visitId
-    ) {
-        Visit visit = visitService.findById(visitId);
-        return mapper.toDto(visit);
     }
 
     @PostMapping("/{visitId}/check-out")
