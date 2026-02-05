@@ -97,4 +97,12 @@ public class VisitServiceJpa implements VisitService {
         return visit;
     }
 
+    @Override
+    public Page<Visit> findVisits(Instant from, Instant to, Pageable pageable) {
+        if (from.isAfter(to)) {
+            throw new BadRequestException("From date must be before to date");
+        }
+
+        return visitRepository.findByCheckedInAtIsBetween(from, to, pageable);
+    }
 }

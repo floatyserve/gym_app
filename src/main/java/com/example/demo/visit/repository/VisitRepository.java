@@ -32,4 +32,6 @@ public interface VisitRepository extends JpaRepository<Visit, Long> {
     WHERE v.active = true
 """)
     Page<ActiveVisitView> findActiveVisitViews(Pageable pageable);
+
+    Page<Visit> findByCheckedInAtIsBetween(Instant checkedInAtAfter, Instant checkedInAtBefore, Pageable pageable);
 }

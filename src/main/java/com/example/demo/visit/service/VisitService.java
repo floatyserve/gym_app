@@ -23,4 +23,6 @@ public interface VisitService {
     Visit checkIn(Customer customer, Worker worker, Instant at);
 
     Visit checkOut(Long visitId, Instant at);
+
+    Page<Visit> findVisits(Instant from, Instant to, Pageable pageable);
 }
