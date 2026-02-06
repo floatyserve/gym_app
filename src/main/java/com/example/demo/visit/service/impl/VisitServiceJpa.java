@@ -50,8 +50,8 @@ public class VisitServiceJpa implements VisitService {
     }
 
     @Override
-    public Visit findActiveCustomerVisit(Customer customer) {
-        return visitRepository.findByCustomerAndActiveTrue(customer)
+    public ActiveVisitView findActiveCustomerVisit(Customer customer) {
+        return visitRepository.findActiveVisitViewForCustomer(customer)
                 .orElseThrow(() -> new BadRequestException("Customer has no active visit"));
     }
 

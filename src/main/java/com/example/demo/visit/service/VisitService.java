@@ -14,7 +14,7 @@ public interface VisitService {
 
     Visit findActiveVisit(Long id);
 
-    Visit findActiveCustomerVisit(Customer customer);
+    ActiveVisitView findActiveCustomerVisit(Customer customer);
 
     Page<ActiveVisitView> findActiveVisitViews(Pageable pageable);
 

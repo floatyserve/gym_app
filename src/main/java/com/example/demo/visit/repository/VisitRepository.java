@@ -16,7 +16,20 @@ public interface VisitRepository extends JpaRepository<Visit, Long> {
 
     Page<Visit> findAllByCustomer(Customer customer, Pageable pageable);
 
-    Optional<Visit> findByCustomerAndActiveTrue(Customer customer);
+    @Query("""
+        SELECT
+      v.id AS visitId,
+      c.fullName AS customerFullName,
+      v.checkedInAt AS checkedInAt,
+      l.id AS lockerId,
+      l.number AS lockerNumber
+    FROM Visit v
+    JOIN v.customer c
+    LEFT JOIN LockerAssignment la ON la.visit = v AND la.releasedAt IS NULL
+    LEFT JOIN la.locker l
+    WHERE v.active = true AND c =:customer
+""")
+    Optional<ActiveVisitView> findActiveVisitViewForCustomer(Customer customer);
 
     @Query("""
     SELECT

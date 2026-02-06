@@ -6,6 +6,7 @@ import com.example.demo.customer.service.CustomerService;
 import com.example.demo.security.UserPrincipal;
 import com.example.demo.staff.domain.Worker;
 import com.example.demo.staff.service.WorkerService;
+import com.example.demo.visit.api.dto.ActiveVisitResponseDto;
 import com.example.demo.visit.api.dto.VisitResponseDto;
 import com.example.demo.visit.domain.Visit;
 import com.example.demo.visit.mapper.VisitMapper;
@@ -31,10 +32,10 @@ public class CustomerVisitController {
     private final Clock clock;
 
     @GetMapping("/active")
-    public VisitResponseDto getActiveVisitForCustomer(@PathVariable Long customerId){
+    public ActiveVisitResponseDto getActiveVisitForCustomer(@PathVariable Long customerId){
         Customer customer = customerService.findById(customerId);
 
-        return mapper.toDto(visitService.findActiveCustomerVisit(customer));
+        return mapper.toActiveDto(visitService.findActiveCustomerVisit(customer));
     }
 
     @GetMapping
