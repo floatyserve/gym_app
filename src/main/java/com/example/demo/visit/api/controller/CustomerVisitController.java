@@ -3,21 +3,14 @@ package com.example.demo.visit.api.controller;
 import com.example.demo.common.api.dto.PageResponseDto;
 import com.example.demo.customer.domain.Customer;
 import com.example.demo.customer.service.CustomerService;
-import com.example.demo.security.UserPrincipal;
-import com.example.demo.staff.domain.Worker;
-import com.example.demo.staff.service.WorkerService;
 import com.example.demo.visit.api.dto.ActiveVisitResponseDto;
 import com.example.demo.visit.api.dto.VisitResponseDto;
-import com.example.demo.visit.domain.Visit;
 import com.example.demo.visit.mapper.VisitMapper;
 import com.example.demo.visit.service.VisitService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.Clock;
 
 @RestController
 @RequestMapping("/api/customers/{customerId}/visits")
@@ -27,9 +20,7 @@ public class CustomerVisitController {
 
     private final VisitService visitService;
     private final VisitMapper mapper;
-    private final WorkerService workerService;
     private final CustomerService customerService;
-    private final Clock clock;
 
     @GetMapping("/active")
     public ActiveVisitResponseDto getActiveVisitForCustomer(@PathVariable Long customerId){
@@ -45,17 +36,5 @@ public class CustomerVisitController {
         return PageResponseDto.from(
                 visitService.getVisitHistory(customer, pageable).map(mapper::toDto)
         );
-    }
-
-    @PostMapping("/check-in")
-    public VisitResponseDto checkIn(
-            @AuthenticationPrincipal UserPrincipal principal,
-            @PathVariable Long customerId
-    ) {
-        Worker worker = workerService.findByUserId(principal.getId());
-        Customer customer = customerService.findById(customerId);
-
-        Visit visit = visitService.checkInByCustomer(customer, worker, clock.instant());
-        return mapper.toDto(visit);
     }
 }
