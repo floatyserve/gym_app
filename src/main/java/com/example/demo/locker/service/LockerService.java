@@ -11,6 +11,8 @@ public interface LockerService {
 
     Locker findById(Long id);
 
+    Locker findByNumber(Integer number);
+
     Locker findFirstAvailable();
 
     Locker create(Integer number);

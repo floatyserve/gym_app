@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface LockerRepository extends JpaRepository<Locker, Long> {
     @Query("""
@@ -26,6 +27,8 @@ WHERE l.status = 'AVAILABLE'
 GROUP BY l.id, l.number, l.status
 """)
     Page<LockerResponseDto> findAvailableLockersWithOccupancy(Pageable pageable);
+
+    Optional<Locker> findByNumber(Integer number);
 
     boolean existsByNumber(Integer number);
 
@@ -58,6 +61,4 @@ WHERE EXISTS (
 
     @Query("SELECT COUNT(l) FROM Locker l WHERE l.status = 'OUT_OF_ORDER'")
     long countUnavailableLockers();
-
-
 }

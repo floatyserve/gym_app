@@ -35,6 +35,12 @@ public class LockerServiceJpa implements LockerService {
     }
 
     @Override
+    public Locker findByNumber(Integer number) {
+        return lockerRepository.findByNumber(number)
+                .orElseThrow(() -> new ReferenceNotFoundException("Locker not found with number: " + number));
+    }
+
+    @Override
     public Locker findFirstAvailable() {
         return lockerRepository
                 .findAvailableLockers(PageRequest.of(0, 1))

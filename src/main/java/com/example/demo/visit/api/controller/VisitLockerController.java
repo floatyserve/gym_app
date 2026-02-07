@@ -37,11 +37,14 @@ public class VisitLockerController {
         return mapper.toDto(lockerAssignmentService.reassignLocker(currentVisit, freeLocker, clock.instant()));
     }
 
-    @PostMapping("/reassign/{newLockerId}")
-    public LockerAssignmentResponseDto reassignLockerToVisit(@PathVariable Long visitId, @PathVariable Long newLockerId){
+    @PostMapping("/reassign/{newLockerNumber}")
+    public LockerAssignmentResponseDto reassignLockerToVisit(
+            @PathVariable Long visitId,
+            @PathVariable Integer newLockerNumber
+    ){
         Visit currentVisit = visitService.findById(visitId);
 
-        Locker newLocker = lockerService.findById(newLockerId);
+        Locker newLocker = lockerService.findByNumber(newLockerNumber);
 
         return mapper.toDto(lockerAssignmentService.reassignLocker(currentVisit, newLocker, clock.instant()));
     }
