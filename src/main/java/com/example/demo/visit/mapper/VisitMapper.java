@@ -15,6 +15,7 @@ import org.mapstruct.ReportingPolicy;
 public interface VisitMapper {
     @Mapping(target = "id", source = "visit.id")
     @Mapping(target = "customerFullName", source = "visit.customer.fullName")
+    @Mapping(target = "customerEmail", source = "visit.customer.email")
     @Mapping(target = "receptionistFullName", source = "visit.worker.fullName")
     VisitResponseDto toDto(Visit visit);
 
