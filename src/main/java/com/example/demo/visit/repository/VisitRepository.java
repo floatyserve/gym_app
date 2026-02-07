@@ -35,6 +35,7 @@ public interface VisitRepository extends JpaRepository<Visit, Long> {
     SELECT
       v.id AS visitId,
       c.fullName AS customerFullName,
+      c.email AS customerEmail,
       v.checkedInAt AS checkedInAt,
       l.id AS lockerId,
       l.number AS lockerNumber
