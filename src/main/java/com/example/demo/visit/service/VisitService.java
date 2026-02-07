@@ -1,5 +1,6 @@
 package com.example.demo.visit.service;
 
+import com.example.demo.card.domain.AccessCard;
 import com.example.demo.customer.domain.Customer;
 import com.example.demo.staff.domain.Worker;
 import com.example.demo.visit.domain.ActiveVisitView;
@@ -20,7 +21,9 @@ public interface VisitService {
 
     Page<Visit> getVisitHistory(Customer customer, Pageable pageable);
 
-    Visit checkIn(Customer customer, Worker worker, Instant at);
+    Visit checkInByAccessCard(AccessCard accessCard, Worker worker, Instant at);
+
+    Visit checkInByCustomer(Customer customer, Worker worker, Instant at);
 
     Visit checkOut(Long visitId, Instant at);
 

@@ -1,5 +1,6 @@
 package com.example.demo.visit.service.impl;
 
+import com.example.demo.card.domain.AccessCard;
 import com.example.demo.customer.domain.Customer;
 import com.example.demo.exceptions.BadRequestException;
 import com.example.demo.exceptions.NoActiveMembershipException;
@@ -66,7 +67,18 @@ public class VisitServiceJpa implements VisitService {
     }
 
     @Override
-    public Visit checkIn(Customer customer, Worker worker, Instant at) {
+    public Visit checkInByAccessCard(AccessCard accessCard, Worker worker, Instant at) {
+        if (!accessCard.isActive()){
+            throw new BadRequestException("Access card is not active, the status is: " + accessCard.getStatus());
+        }
+
+        Customer customer = accessCard.getCustomer();
+
+        return checkInByCustomer(customer, worker, at);
+    }
+
+    @Override
+    public Visit checkInByCustomer(Customer customer, Worker worker, Instant at) {
         Optional<Membership> activeMembershipOptional = membershipLifecycleService.findValidActiveMembership(customer, at);
 
         Membership membership;
@@ -84,7 +96,6 @@ public class VisitServiceJpa implements VisitService {
 
         return visit;
     }
-
 
     @Override
     public Visit checkOut(Long visitId, Instant at) {

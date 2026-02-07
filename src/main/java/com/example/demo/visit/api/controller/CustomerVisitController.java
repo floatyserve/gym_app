@@ -55,7 +55,7 @@ public class CustomerVisitController {
         Worker worker = workerService.findByUserId(principal.getId());
         Customer customer = customerService.findById(customerId);
 
-        Visit visit = visitService.checkIn(customer, worker, clock.instant());
+        Visit visit = visitService.checkInByCustomer(customer, worker, clock.instant());
         return mapper.toDto(visit);
     }
 }
