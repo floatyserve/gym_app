@@ -31,9 +31,9 @@ public class AccessCardAssignmentController {
         return mapper.toDto(accessCardAssignmentService.assignCard(card, customer));
     }
 
-    @PostMapping(value = "/detach", params = "cardId")
-    public AccessCardResponseDto detachCard(@RequestParam Long cardId){
-        AccessCard card = accessCardService.findById(cardId);
+    @PostMapping(value = "/detach", params = "cardCode")
+    public AccessCardResponseDto detachCard(@RequestParam String cardCode){
+        AccessCard card = accessCardService.findByCode(cardCode);
 
         return mapper.toDto(accessCardAssignmentService.detachFromCustomer(card));
     }
