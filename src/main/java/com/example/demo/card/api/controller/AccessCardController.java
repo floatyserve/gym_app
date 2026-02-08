@@ -24,9 +24,9 @@ public class AccessCardController {
         return mapper.toDto(accessCardService.findById(id));
     }
 
-    @GetMapping(value = "/by-code", params = "code")
-    public AccessCardResponseDto getAccessCardByCode(@RequestParam String code){
-        return mapper.toDto(accessCardService.findByCode(code));
+    @GetMapping(value = "/by-code", params = "cardCode")
+    public AccessCardResponseDto getAccessCardByCode(@RequestParam String cardCode){
+        return mapper.toDto(accessCardService.findByCode(cardCode));
     }
 
     @GetMapping
