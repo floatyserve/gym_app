@@ -25,7 +25,7 @@ public class AccessCardAssignmentController {
 
     @PostMapping("/assign")
     public AccessCardResponseDto assignCard(@RequestBody @Valid AssignAccessCardRequest request){
-        AccessCard card = accessCardService.findById(request.cardId());
+        AccessCard card = accessCardService.findByCode(request.code());
         Customer customer = customerService.findById(request.customerId());
 
         return mapper.toDto(accessCardAssignmentService.assignCard(card, customer));
@@ -41,7 +41,7 @@ public class AccessCardAssignmentController {
     @PostMapping("/replace")
     public AccessCardResponseDto replaceCard(@RequestBody @Valid AssignAccessCardRequest request){
         Customer customer = customerService.findById(request.customerId());
-        AccessCard newCard = accessCardService.findById(request.cardId());
+        AccessCard newCard = accessCardService.findByCode(request.code());
 
         return mapper.toDto(accessCardAssignmentService.replaceLostCard(customer, newCard));
     }

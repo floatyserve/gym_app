@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotNull;
 
 public record AssignAccessCardRequest(
         @NotNull
-        Long cardId,
+        String code,
 
         @NotNull
         Long customerId
