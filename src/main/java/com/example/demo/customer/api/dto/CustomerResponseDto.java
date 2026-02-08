@@ -7,5 +7,6 @@ public record CustomerResponseDto (
         String fullName,
         String phoneNumber,
         String email,
-        Instant createdAt
+        Instant createdAt,
+        String cardCode
 ) {}

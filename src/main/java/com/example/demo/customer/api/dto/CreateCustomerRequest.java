@@ -11,5 +11,8 @@ public record CreateCustomerRequest (
         String phoneNumber,
 
         @NotBlank @Email
-        String email
+        String email,
+
+        @NotBlank
+        String cardCode
 ){}

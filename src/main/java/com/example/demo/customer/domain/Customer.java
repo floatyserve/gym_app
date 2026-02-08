@@ -1,11 +1,14 @@
 package com.example.demo.customer.domain;
 
 import com.example.demo.auth.domain.User;
+import com.example.demo.card.domain.AccessCard;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -35,6 +38,9 @@ public class Customer {
     private Instant createdAt;
 
     private Instant updatedAt;
+
+    @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY)
+    private Set<AccessCard> accessCards = new HashSet<>();
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by_id", nullable = false)
@@ -66,6 +72,15 @@ public class Customer {
         if (phoneNumber != null) this.phoneNumber = phoneNumber;
         if (email != null) this.email = email;
         this.updatedBy = updatedBy;
+    }
+
+    public AccessCard getActiveCard() {
+        return accessCards.stream()
+                .filter(AccessCard::isActive)
+                .findFirst()
+                .orElseThrow(() ->
+                        new IllegalStateException("Customer has no active access card")
+                );
     }
 }
 

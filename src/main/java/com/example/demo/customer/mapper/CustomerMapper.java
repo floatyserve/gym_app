@@ -3,6 +3,7 @@ package com.example.demo.customer.mapper;
 import com.example.demo.customer.api.dto.CustomerResponseDto;
 import com.example.demo.customer.domain.Customer;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
 @Mapper(
@@ -10,5 +11,6 @@ import org.mapstruct.ReportingPolicy;
         unmappedTargetPolicy = ReportingPolicy.ERROR
 )
 public interface CustomerMapper {
+    @Mapping(target = "cardCode", expression = "java(customer.getActiveCard().getCode())")
     CustomerResponseDto toDto(Customer customer);
 }

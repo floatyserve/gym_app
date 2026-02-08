@@ -68,6 +68,8 @@ public class AccessCard {
             throw new IllegalStateException("Only inactive cards without assigned customer can be assigned");
         }
 
+        customer.getAccessCards().add(this);
+
         this.customer = customer;
     }
 

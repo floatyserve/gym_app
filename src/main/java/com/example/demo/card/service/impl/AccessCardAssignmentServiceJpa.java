@@ -26,6 +26,7 @@ public class AccessCardAssignmentServiceJpa implements AccessCardAssignmentServi
 
         card.assign(customer);
         card.activate();
+
         return accessCardRepository.save(card);
     }
 

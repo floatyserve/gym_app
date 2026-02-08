@@ -9,6 +9,7 @@ import com.example.demo.customer.api.dto.UpdateCustomerRequest;
 import com.example.demo.customer.domain.Customer;
 import com.example.demo.customer.mapper.CustomerMapper;
 import com.example.demo.customer.service.CustomerService;
+import com.example.demo.customer.service.RegistrationService;
 import com.example.demo.security.UserPrincipal;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ public class CustomerController {
     private final CustomerService customerService;
     private final UserService userService;
     private final CustomerMapper customerMapper;
+    private final RegistrationService registrationService;
 
     @GetMapping
     public PageResponseDto<CustomerResponseDto> getAll(Pageable pageable){
@@ -44,18 +46,19 @@ public class CustomerController {
         return customerMapper.toDto(customerService.findByEmail(email));
     }
 
-    @PostMapping
-    public CustomerResponseDto createCustomer(
+    @PostMapping("/register")
+    public CustomerResponseDto registerNewCustomer(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @RequestBody @Valid CreateCustomerRequest request
     ){
         User createdBy = userService.findById(userPrincipal.getId());
 
-        Customer customer = customerService.create(
+        Customer customer = registrationService.registerCustomerWithCard(
                 request.fullName(),
                 request.phoneNumber(),
                 request.email(),
-                createdBy
+                createdBy,
+                request.cardCode()
         );
 
         return customerMapper.toDto(customer);
