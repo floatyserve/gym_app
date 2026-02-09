@@ -1,9 +1,9 @@
 package com.example.demo.visit.service.impl;
 
 import com.example.demo.card.domain.AccessCard;
+import com.example.demo.common.ResourceType;
 import com.example.demo.customer.domain.Customer;
 import com.example.demo.exceptions.BadRequestException;
-import com.example.demo.exceptions.NoActiveMembershipException;
 import com.example.demo.exceptions.ReferenceNotFoundException;
 import com.example.demo.locker.domain.LockerAssignment;
 import com.example.demo.locker.service.LockerAssignmentService;
@@ -36,7 +36,7 @@ public class VisitServiceJpa implements VisitService {
     @Override
     public Visit findById(Long id) {
         return visitRepository.findById(id)
-                .orElseThrow(() -> new ReferenceNotFoundException("Visit not found with id: " + id));
+                .orElseThrow(() -> new ReferenceNotFoundException(ResourceType.VISIT, "id"));
     }
 
     @Override
@@ -44,7 +44,11 @@ public class VisitServiceJpa implements VisitService {
         Visit visit = findById(id);
 
         if (visit.getCheckedOutAt() != null) {
-            throw new BadRequestException("Visit is already checked out");
+            throw new ReferenceNotFoundException(
+                    ResourceType.VISIT,
+                    "checkedOutAt",
+                    "Requested visit is already checked out"
+            );
         }
 
         return visit;
@@ -53,7 +57,11 @@ public class VisitServiceJpa implements VisitService {
     @Override
     public ActiveVisitView findActiveCustomerVisit(Customer customer) {
         return visitRepository.findActiveVisitViewForCustomer(customer)
-                .orElseThrow(() -> new BadRequestException("Customer has no active visit"));
+                .orElseThrow(() -> new ReferenceNotFoundException(
+                        ResourceType.VISIT,
+                        "customer",
+                        "Customer has no active visit"
+                ));
     }
 
     @Override
@@ -69,7 +77,11 @@ public class VisitServiceJpa implements VisitService {
     @Override
     public Visit checkInByAccessCard(AccessCard accessCard, Worker worker, Instant at) {
         if (!accessCard.isActive()){
-            throw new BadRequestException("Access card is not active, the status is: " + accessCard.getStatus());
+            throw new BadRequestException(
+                    ResourceType.ACCESS_CARD,
+                    "status",
+                    "Card is not active, status:" + accessCard.getStatus()
+            );
         }
 
         Customer customer = accessCard.getCustomer();
@@ -87,7 +99,11 @@ public class VisitServiceJpa implements VisitService {
                 .orElseGet(() -> membershipLifecycleService.activateNextPendingMembership(customer));
 
         if (membershipUsageService.isExhausted(membership, at)) {
-            throw new NoActiveMembershipException("Membership is exhausted");
+            throw new BadRequestException(
+                    ResourceType.MEMBERSHIP,
+                    "visitLimit",
+                    "Visit limit reached"
+            );
         }
 
         Visit visit = visitRepository.save(new Visit(customer, worker, at));
@@ -111,7 +127,11 @@ public class VisitServiceJpa implements VisitService {
     @Override
     public Page<Visit> findVisits(Instant from, Instant to, Pageable pageable) {
         if (from.isAfter(to)) {
-            throw new BadRequestException("From date must be before to date");
+            throw new BadRequestException(
+                    ResourceType.VISIT,
+                    "from",
+                    "FROM date must be before TO date"
+            );
         }
 
         return visitRepository.findByCheckedInAtIsBetween(from, to, pageable);

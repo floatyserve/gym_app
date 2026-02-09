@@ -1,6 +1,7 @@
 package com.example.demo.customer.service.impl;
 
 import com.example.demo.auth.domain.User;
+import com.example.demo.common.ResourceType;
 import com.example.demo.customer.domain.Customer;
 import com.example.demo.customer.repository.CustomerRepository;
 import com.example.demo.customer.service.CustomerService;
@@ -31,13 +32,13 @@ public class CustomerServiceJpa implements CustomerService {
     @Override
     public Customer findById(Long id) {
         return customerRepository.findById(id)
-                .orElseThrow(() -> new ReferenceNotFoundException("Customer not found with id: " + id));
+                .orElseThrow(() -> new ReferenceNotFoundException(ResourceType.CUSTOMER, "id"));
     }
 
     @Override
     public Customer findByEmail(String email) {
         return customerRepository.findByEmail(email)
-                .orElseThrow(() -> new ReferenceNotFoundException("Customer not found with email: " + email));
+                .orElseThrow(() -> new ReferenceNotFoundException(ResourceType.CUSTOMER, "email"));
     }
 
     @Override

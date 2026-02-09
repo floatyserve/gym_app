@@ -4,6 +4,7 @@ import com.example.demo.card.domain.AccessCard;
 import com.example.demo.card.domain.AccessCardStatus;
 import com.example.demo.card.repository.AccessCardRepository;
 import com.example.demo.card.service.AccessCardService;
+import com.example.demo.common.ResourceType;
 import com.example.demo.customer.domain.Customer;
 import com.example.demo.exceptions.AlreadyExistsException;
 import com.example.demo.exceptions.ReferenceNotFoundException;
@@ -22,13 +23,19 @@ public class AccessCardServiceJpa implements AccessCardService {
     @Override
     public AccessCard findById(Long id) {
         return accessCardRepository.findById(id)
-                .orElseThrow(() -> new ReferenceNotFoundException("Access card not found with id: " + id));
+                .orElseThrow(() -> new ReferenceNotFoundException(
+                        ResourceType.ACCESS_CARD,
+                        "id"
+                ));
     }
 
     @Override
     public AccessCard findByCode(String code) {
         return accessCardRepository.findByCode(code)
-                .orElseThrow(() -> new ReferenceNotFoundException("Access card not found with code: " + code));
+                .orElseThrow(() -> new ReferenceNotFoundException(
+                        ResourceType.ACCESS_CARD,
+                        "code"
+                ));
     }
 
     @Override
@@ -39,7 +46,7 @@ public class AccessCardServiceJpa implements AccessCardService {
     @Override
     public AccessCard create(String code) {
         if(accessCardRepository.existsByCode(code)) {
-            throw new AlreadyExistsException("Access card with code: " + code + " already exists");
+            throw new AlreadyExistsException(ResourceType.ACCESS_CARD, "code");
         }
 
         return accessCardRepository.save(new AccessCard(code));

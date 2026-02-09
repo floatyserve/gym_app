@@ -3,6 +3,7 @@ package com.example.demo.auth.service.impl;
 import com.example.demo.auth.domain.User;
 import com.example.demo.auth.service.AuthService;
 import com.example.demo.auth.service.UserService;
+import com.example.demo.common.ResourceType;
 import com.example.demo.security.JwtTokenProvider;
 import com.example.demo.exceptions.BadRequestException;
 import lombok.RequiredArgsConstructor;
@@ -58,6 +59,8 @@ public class AuthServiceJpa implements AuthService {
 
         if (isSamePassword(user.getPasswordHash(), newPassword)) {
             throw new BadRequestException(
+                    ResourceType.USER,
+                    "password",
                     "New password must be different from the old one"
             );
         }

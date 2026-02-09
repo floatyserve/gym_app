@@ -1,5 +1,7 @@
 package com.example.demo.locker.service.impl;
 
+import com.example.demo.common.ResourceType;
+import com.example.demo.exceptions.AlreadyExistsException;
 import com.example.demo.exceptions.BadRequestException;
 import com.example.demo.exceptions.ReferenceNotFoundException;
 import com.example.demo.locker.api.dto.LockerResponseDto;
@@ -31,13 +33,19 @@ public class LockerServiceJpa implements LockerService {
     @Override
     public Locker findById(Long id) {
         return lockerRepository.findById(id)
-                .orElseThrow(() -> new ReferenceNotFoundException("Locker not found with id: " + id));
+                .orElseThrow(() -> new ReferenceNotFoundException(
+                        ResourceType.LOCKER,
+                        "id"
+                ));
     }
 
     @Override
     public Locker findByNumber(Integer number) {
         return lockerRepository.findByNumber(number)
-                .orElseThrow(() -> new ReferenceNotFoundException("Locker not found with number: " + number));
+                .orElseThrow(() -> new ReferenceNotFoundException(
+                        ResourceType.LOCKER,
+                        "number"
+                ));
     }
 
     @Override
@@ -46,13 +54,17 @@ public class LockerServiceJpa implements LockerService {
                 .findAvailableLockers(PageRequest.of(0, 1))
                 .stream()
                 .findFirst()
-                .orElseThrow(() -> new BadRequestException("No available lockers"));
+                .orElseThrow(() -> new ReferenceNotFoundException(
+                        ResourceType.LOCKER,
+                        null,
+                        "No available lockers left"
+                ));
     }
 
     @Override
     public Locker create(Integer number) {
         if (lockerRepository.existsByNumber(number)) {
-            throw new BadRequestException("Locker already exists with number: " + number);
+            throw new AlreadyExistsException(ResourceType.LOCKER, "number");
         }
 
         Locker locker = new Locker(
@@ -66,11 +78,19 @@ public class LockerServiceJpa implements LockerService {
     @Override
     public void assertAvailable(Locker locker) {
         if (locker.getStatus() != LockerStatus.AVAILABLE) {
-            throw new BadRequestException("Locker is out of order");
+            throw new BadRequestException(
+                    ResourceType.LOCKER,
+                    "status",
+                    "Locker is out of order."
+            );
         }
 
         if (lockerAssignmentRepository.existsByLockerIdAndReleasedAtIsNull(locker.getId())) {
-            throw new BadRequestException("Locker is currently occupied");
+            throw new BadRequestException(
+                    ResourceType.LOCKER,
+                    null,
+                    "Locker is currently occupied"
+            );
         }
     }
 

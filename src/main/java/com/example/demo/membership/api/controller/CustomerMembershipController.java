@@ -1,5 +1,6 @@
 package com.example.demo.membership.api.controller;
 
+import com.example.demo.common.ResourceType;
 import com.example.demo.common.api.dto.PageResponseDto;
 import com.example.demo.customer.domain.Customer;
 import com.example.demo.customer.service.CustomerService;
@@ -52,6 +53,10 @@ public class CustomerMembershipController {
 
         return membership
                 .map(mapper::toDto)
-                .orElseThrow(() -> new ReferenceNotFoundException("No active membership for customer"));
+                .orElseThrow(() -> new ReferenceNotFoundException(
+                        ResourceType.MEMBERSHIP,
+                        "active",
+                        "No active membership found for customer"
+                ));
     }
 }

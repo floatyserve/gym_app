@@ -2,6 +2,7 @@ package com.example.demo.staff.service.impl;
 
 import com.example.demo.auth.domain.User;
 import com.example.demo.auth.service.UserService;
+import com.example.demo.common.ResourceType;
 import com.example.demo.exceptions.ReferenceNotFoundException;
 import com.example.demo.staff.domain.Worker;
 import com.example.demo.staff.repository.WorkerRepository;
@@ -27,7 +28,10 @@ public class WorkerServiceJpa implements WorkerService {
     @Override
     public Worker findById(Long id) {
         return workerRepository.findById(id)
-                .orElseThrow(() -> new ReferenceNotFoundException("Worker not found with id: " + id));
+                .orElseThrow(() -> new ReferenceNotFoundException(
+                        ResourceType.WORKER,
+                        "id"
+                ));
     }
 
     @Override
@@ -35,7 +39,8 @@ public class WorkerServiceJpa implements WorkerService {
         return workerRepository.findByUserId(userId)
                 .orElseThrow(() ->
                         new ReferenceNotFoundException(
-                                "Worker not found for user id: " + userId
+                                ResourceType.WORKER,
+                                "userId"
                         ));
     }
 

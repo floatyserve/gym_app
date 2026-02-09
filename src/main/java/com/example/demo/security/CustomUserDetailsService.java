@@ -2,6 +2,7 @@ package com.example.demo.security;
 
 import com.example.demo.auth.domain.User;
 import com.example.demo.auth.repository.UserRepository;
+import com.example.demo.common.ResourceType;
 import com.example.demo.exceptions.ReferenceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -29,7 +30,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserPrincipal loadUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() ->
-                        new ReferenceNotFoundException("User not found with id: " + id));
+                        new ReferenceNotFoundException(ResourceType.USER, "id"));
 
         return UserPrincipal.from(user);
     }

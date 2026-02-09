@@ -1,5 +1,6 @@
 package com.example.demo.locker.service.impl;
 
+import com.example.demo.common.ResourceType;
 import com.example.demo.exceptions.BadRequestException;
 import com.example.demo.locker.domain.Locker;
 import com.example.demo.locker.domain.LockerAssignment;
@@ -41,7 +42,11 @@ public class LockerAssignmentServiceJpa implements LockerAssignmentService {
         try {
             return lockerAssignmentRepository.save(new LockerAssignment(visit, locker, assignedAt));
         } catch (DataIntegrityViolationException e) {
-            throw new BadRequestException("Locker was taken concurrently, retry");
+            throw new BadRequestException(
+                    ResourceType.LOCKER,
+                    null,
+                    "Locker was taken concurrently, retry"
+            );
         }
     }
 
@@ -58,7 +63,11 @@ public class LockerAssignmentServiceJpa implements LockerAssignmentService {
         try {
             return lockerAssignmentRepository.save(newAssignment);
         } catch (DataIntegrityViolationException e) {
-            throw new BadRequestException("Locker was taken concurrently, retry");
+            throw new BadRequestException(
+                    ResourceType.LOCKER,
+                    null,
+                    "Locker was taken concurrently, retry"
+            );
         }
     }
 
@@ -67,7 +76,11 @@ public class LockerAssignmentServiceJpa implements LockerAssignmentService {
         return lockerAssignmentRepository
                 .findByVisitIdAndReleasedAtIsNull(visit.getId())
                 .orElseThrow(() ->
-                        new BadRequestException("Visit has no active locker")
+                        new BadRequestException(
+                                ResourceType.VISIT,
+                                null,
+                                "Visit has no assigned locker"
+                        )
                 );
     }
 
@@ -78,7 +91,11 @@ public class LockerAssignmentServiceJpa implements LockerAssignmentService {
 
     private void assertVisitHasNoActiveLocker(Visit visit) {
         if (lockerAssignmentRepository.existsByVisitIdAndReleasedAtIsNull(visit.getId())) {
-            throw new BadRequestException("Visit already has a locker");
+            throw new BadRequestException(
+                    ResourceType.VISIT,
+                    null,
+                    "Visit already has a locker"
+            );
         }
     }
 }

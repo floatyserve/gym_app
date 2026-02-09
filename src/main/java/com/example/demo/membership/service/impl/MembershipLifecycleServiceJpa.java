@@ -1,5 +1,6 @@
 package com.example.demo.membership.service.impl;
 
+import com.example.demo.common.ResourceType;
 import com.example.demo.customer.domain.Customer;
 import com.example.demo.exceptions.BadRequestException;
 import com.example.demo.exceptions.ReferenceNotFoundException;
@@ -31,7 +32,7 @@ public class MembershipLifecycleServiceJpa implements MembershipLifecycleService
     public Membership findById(Long id) {
         return membershipRepository.findById(id)
                 .orElseThrow(() ->
-                        new ReferenceNotFoundException("Membership not found with id: " + id)
+                        new ReferenceNotFoundException(ResourceType.MEMBERSHIP, "id")
                 );
     }
 
@@ -69,7 +70,11 @@ public class MembershipLifecycleServiceJpa implements MembershipLifecycleService
             Integer visitLimit
     ) {
         if (duration == null) {
-            throw new BadRequestException("Membership duration is required");
+            throw new BadRequestException(
+                    ResourceType.MEMBERSHIP,
+                    "duration",
+                    "is required"
+            );
         }
 
         validateVisitLimit(type, visitLimit);
@@ -87,13 +92,21 @@ public class MembershipLifecycleServiceJpa implements MembershipLifecycleService
     @Override
     public Membership activateNextPendingMembership(Customer customer) {
         if (membershipRepository.existsByCustomerAndStatus(customer, MembershipStatus.ACTIVE)) {
-            throw new BadRequestException("Customer already has an active membership");
+            throw new BadRequestException(
+                    ResourceType.MEMBERSHIP,
+                    "customer",
+                    "already has an active membership"
+            );
         }
 
         Membership pending = membershipRepository
                 .findTopByCustomerAndStatusOrderByIdAsc(customer, MembershipStatus.PENDING)
                 .orElseThrow(() ->
-                        new BadRequestException("No pending membership to activate")
+                        new BadRequestException(
+                                ResourceType.MEMBERSHIP,
+                                "customer",
+                                "has no pending memberships"
+                        )
                 );
 
         pending.activate(clock.instant());
@@ -114,11 +127,19 @@ public class MembershipLifecycleServiceJpa implements MembershipLifecycleService
 
     private void validateVisitLimit(MembershipType type, Integer visitLimit) {
         if (type == MembershipType.LIMITED && visitLimit == null) {
-            throw new BadRequestException("Visit limit is required for limited memberships");
+            throw new BadRequestException(
+                    ResourceType.MEMBERSHIP,
+                    "visitLimit",
+                    "is required for limited memberships"
+            );
         }
 
         if (type != MembershipType.LIMITED && visitLimit != null) {
-            throw new BadRequestException("Visit limit is only applicable to limited memberships");
+            throw new BadRequestException(
+                    ResourceType.MEMBERSHIP,
+                    "visitLimit",
+                    "cannot be set for unlimited memberships"
+            );
         }
     }
 }
