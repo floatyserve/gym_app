@@ -5,6 +5,7 @@ import com.example.demo.common.ResourceType;
 import com.example.demo.customer.domain.Customer;
 import com.example.demo.customer.repository.CustomerRepository;
 import com.example.demo.customer.service.CustomerService;
+import com.example.demo.exceptions.AlreadyExistsException;
 import com.example.demo.exceptions.ReferenceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,6 +22,14 @@ public class CustomerServiceJpa implements CustomerService {
 
     @Override
     public Customer create(String fullName, String phoneNumber, String email, User createdBy) {
+        if (customerRepository.existsByEmail(email)) {
+            throw new AlreadyExistsException(ResourceType.CUSTOMER, "email");
+        }
+
+        if (customerRepository.existsByPhoneNumber(phoneNumber)) {
+            throw new AlreadyExistsException(ResourceType.CUSTOMER, "phoneNumber");
+        }
+
         return customerRepository.save(new Customer(fullName, phoneNumber, email, createdBy));
     }
 

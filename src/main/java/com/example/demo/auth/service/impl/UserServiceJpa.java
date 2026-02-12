@@ -5,6 +5,7 @@ import com.example.demo.auth.domain.User;
 import com.example.demo.auth.repository.UserRepository;
 import com.example.demo.auth.service.UserService;
 import com.example.demo.common.ResourceType;
+import com.example.demo.exceptions.AlreadyExistsException;
 import com.example.demo.exceptions.ReferenceNotFoundException;
 import com.example.demo.exceptions.BadRequestException;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +44,7 @@ public class UserServiceJpa implements UserService {
     @Override
     public User create(String email, String rawPassword, Role role, Instant at) {
         if (userRepository.existsByEmail(email)) {
-            throw new IllegalArgumentException("Email already in use: " + email);
+            throw new AlreadyExistsException(ResourceType.USER, "email");
         }
 
         User user = new User(

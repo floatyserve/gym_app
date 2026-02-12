@@ -1,6 +1,8 @@
 package com.example.demo.card.domain;
 
+import com.example.demo.common.ResourceType;
 import com.example.demo.customer.domain.Customer;
+import com.example.demo.exceptions.BadRequestException;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -65,7 +67,11 @@ public class AccessCard {
 
     public void assign(Customer customer) {
         if (!isReadyToAssign()) {
-            throw new IllegalStateException("Only inactive cards without assigned customer can be assigned");
+            throw new BadRequestException(
+                    ResourceType.ACCESS_CARD,
+                    "customer",
+                    "This card is already assigned to another customer"
+            );
         }
 
         customer.getAccessCards().add(this);

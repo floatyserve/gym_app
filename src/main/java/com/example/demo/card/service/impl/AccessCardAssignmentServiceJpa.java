@@ -25,7 +25,7 @@ public class AccessCardAssignmentServiceJpa implements AccessCardAssignmentServi
             throw new BadRequestException(
                     ResourceType.ACCESS_CARD,
                     "customer",
-                    "already has an active card"
+                    "This customer already has an active card"
             );
         }
 
