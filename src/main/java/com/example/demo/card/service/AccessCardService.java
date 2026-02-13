@@ -17,8 +17,4 @@ public interface AccessCardService {
     Page<AccessCard> findAll(Pageable pageable);
 
     Page<AccessCard> findByCustomer(Customer customer, Pageable pageable);
-
-    AccessCard revoke(Long id);
-
-    AccessCard markLost(Long id);
 }

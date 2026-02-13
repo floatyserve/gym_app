@@ -35,7 +35,7 @@ public class AccessCard {
     }
 
     private boolean isReadyToAssign() {
-        return status == AccessCardStatus.INACTIVE && customer == null;
+        return isReadyToBeActivated() && customer == null;
     }
 
     private boolean isReadyToDetach() {
@@ -43,12 +43,12 @@ public class AccessCard {
     }
 
     private boolean isReadyToBeActivated() {
-        return status != AccessCardStatus.BLOCKED;
+        return status == AccessCardStatus.INACTIVE;
     }
 
     public void activate() {
         if(!isReadyToBeActivated()) {
-            throw new IllegalStateException("Blocked cards can not be activated");
+            throw new IllegalStateException("Only INACTIVE cards can be activated");
         }
         this.status = AccessCardStatus.ACTIVE;
     }
@@ -63,6 +63,10 @@ public class AccessCard {
 
     public void markLost() {
         this.status = AccessCardStatus.LOST;
+    }
+
+    public void markDamaged(){
+        this.status = AccessCardStatus.DAMAGED;
     }
 
     public void assign(Customer customer) {

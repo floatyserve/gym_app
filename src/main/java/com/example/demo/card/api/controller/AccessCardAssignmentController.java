@@ -1,7 +1,8 @@
 package com.example.demo.card.api.controller;
 
 import com.example.demo.card.api.dto.AccessCardResponseDto;
-import com.example.demo.card.api.dto.AssignAccessCardRequest;
+import com.example.demo.card.api.dto.ReassignAccessCardRequest;
+import com.example.demo.card.api.dto.TerminateAccessCardRequest;
 import com.example.demo.card.domain.AccessCard;
 import com.example.demo.card.mapper.AccessCardMapper;
 import com.example.demo.card.service.AccessCardAssignmentService;
@@ -30,11 +31,20 @@ public class AccessCardAssignmentController {
         return mapper.toDto(accessCardAssignmentService.detachFromCustomer(card));
     }
 
+    @PostMapping("/terminate")
+    AccessCardResponseDto terminateCard(@RequestBody @Valid TerminateAccessCardRequest request){
+        AccessCard accessCard = accessCardService.findByCode(request.code());
+
+        AccessCard terminatedCard = accessCardAssignmentService.terminateActiveCard(accessCard, request.reason());
+
+        return mapper.toDto(terminatedCard);
+    }
+
     @PostMapping("/replace")
-    public AccessCardResponseDto replaceCard(@RequestBody @Valid AssignAccessCardRequest request){
+    public AccessCardResponseDto replaceCard(@RequestBody @Valid ReassignAccessCardRequest request){
         Customer customer = customerService.findById(request.customerId());
         AccessCard newCard = accessCardService.findByCode(request.code());
 
-        return mapper.toDto(accessCardAssignmentService.replaceLostCard(customer, newCard));
+        return mapper.toDto(accessCardAssignmentService.replace(customer, newCard, request.terminationReason()));
     }
 }

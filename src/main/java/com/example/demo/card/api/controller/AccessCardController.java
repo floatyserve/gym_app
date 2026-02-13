@@ -37,16 +37,6 @@ public class AccessCardController {
         );
     }
 
-    @PostMapping("/{id}/revoke")
-    public AccessCardResponseDto revokeAccessCard(@PathVariable Long id){
-        return mapper.toDto(accessCardService.revoke(id));
-    }
-
-    @PostMapping("/{id}/mark-lost")
-    public AccessCardResponseDto markAccessCardLost(@PathVariable Long id){
-        return mapper.toDto(accessCardService.markLost(id));
-    }
-
     @PostMapping
     public AccessCardResponseDto createAccessCard(@RequestBody @Valid CreateAccessCardRequest request){
         return mapper.toDto(accessCardService.create(request.code()));

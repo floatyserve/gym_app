@@ -61,18 +61,4 @@ public class AccessCardServiceJpa implements AccessCardService {
     public Page<AccessCard> findByCustomer(Customer customer, Pageable pageable) {
         return accessCardRepository.findByCustomer(customer, pageable);
     }
-
-    @Override
-    public AccessCard revoke(Long id) {
-        AccessCard card = findById(id);
-        card.revoke();
-        return accessCardRepository.save(card);
-    }
-
-    @Override
-    public AccessCard markLost(Long id) {
-        AccessCard card = findById(id);
-        card.markLost();
-        return accessCardRepository.save(card);
-    }
 }

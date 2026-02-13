@@ -1,6 +1,7 @@
 package com.example.demo.card.service.impl;
 
 import com.example.demo.card.domain.AccessCard;
+import com.example.demo.card.domain.AccessCardTerminationReason;
 import com.example.demo.card.domain.AccessCardStatus;
 import com.example.demo.card.repository.AccessCardRepository;
 import com.example.demo.card.service.AccessCardAssignmentService;
@@ -42,14 +43,40 @@ public class AccessCardAssignmentServiceJpa implements AccessCardAssignmentServi
         return accessCardRepository.save(card);
     }
 
-    //TODO: think of more generic usage, not only lost card replacement
+
     @Override
-    public AccessCard replaceLostCard(Customer customer, AccessCard newCard) {
+    public AccessCard replace(Customer customer,
+                              AccessCard newCard,
+                              AccessCardTerminationReason replacementReason
+    ) {
         AccessCard lostCard = accessCardService.findActiveCard(customer);
-        accessCardService.markLost(lostCard.getId());
 
-        assignCard(newCard, customer);
+        applyReplacementReason(lostCard, replacementReason);
 
-        return newCard;
+        return assignCard(newCard, customer);
+    }
+
+    @Override
+    public AccessCard terminateActiveCard(AccessCard accessCard, AccessCardTerminationReason reason) {
+        if (!accessCard.isActive()) {
+            throw new BadRequestException(ResourceType.ACCESS_CARD,
+                    "status",
+                    "Only active cards can be terminated."
+            );
+        }
+
+        applyReplacementReason(accessCard, reason);
+
+        return accessCard;
+    }
+
+    private void applyReplacementReason(AccessCard oldCard,
+                                        AccessCardTerminationReason replacementReason
+    ){
+        switch (replacementReason) {
+            case LOST -> oldCard.markLost();
+            case BLOCKED -> oldCard.revoke();
+            case DAMAGED -> oldCard.markDamaged();
+        }
     }
 }

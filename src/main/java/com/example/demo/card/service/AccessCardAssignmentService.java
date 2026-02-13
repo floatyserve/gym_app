@@ -1,6 +1,7 @@
 package com.example.demo.card.service;
 
 import com.example.demo.card.domain.AccessCard;
+import com.example.demo.card.domain.AccessCardTerminationReason;
 import com.example.demo.customer.domain.Customer;
 
 public interface AccessCardAssignmentService {
@@ -8,5 +9,10 @@ public interface AccessCardAssignmentService {
 
     AccessCard detachFromCustomer(AccessCard card);
 
-    AccessCard replaceLostCard(Customer customer, AccessCard newCard);
+    AccessCard replace(Customer customer, AccessCard newCard,
+                       AccessCardTerminationReason replacementReason);
+
+    AccessCard terminateActiveCard(
+            AccessCard accessCard,
+            AccessCardTerminationReason reason);
 }

@@ -4,5 +4,6 @@ public enum AccessCardStatus {
     ACTIVE,
     INACTIVE,
     LOST,
+    DAMAGED,
     BLOCKED
 }
