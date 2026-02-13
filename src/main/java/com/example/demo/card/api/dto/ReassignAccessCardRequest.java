@@ -11,5 +11,5 @@ public record ReassignAccessCardRequest(
         Long customerId,
 
         @NotNull
-        AccessCardTerminationReason terminationReason
+        AccessCardTerminationReason reason
 ) {}

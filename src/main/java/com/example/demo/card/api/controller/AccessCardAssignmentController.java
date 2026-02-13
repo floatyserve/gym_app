@@ -45,6 +45,6 @@ public class AccessCardAssignmentController {
         Customer customer = customerService.findById(request.customerId());
         AccessCard newCard = accessCardService.findByCode(request.code());
 
-        return mapper.toDto(accessCardAssignmentService.replace(customer, newCard, request.terminationReason()));
+        return mapper.toDto(accessCardAssignmentService.replace(customer, newCard, request.reason()));
     }
 }
